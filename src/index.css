@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-main: #FBF9F5;
+  --bg-surface: #F3EFEA;
+  --border-muted: #E5DFD7;
+  --forest-dark: #1B4332;
+  --forest-light: #2D6A4F;
+  --text-charcoal: #1F2421;
+  --text-muted: #6B746E;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-charcoal);
+  font-family: 'Plus Jakarta Sans', 'Public Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F3EFEA;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D2C9BE;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1B4332;
+}
+
+/* Receipt Print Format (80mm & 58mm Thermal Printers) */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #thermal-print-area, #thermal-print-area * {
+    visibility: visible;
+  }
+  #thermal-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0 auto;
+    padding: 2mm;
+    background: #FFFFFF;
+    color: #000000;
+    font-size: 11px;
+    font-family: monospace;
+    line-height: 1.25;
+  }
+  @page {
+    margin: 0;
+    size: 80mm auto;
+  }
+}
