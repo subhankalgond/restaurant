@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { AppIcons } from '../../components/common/Icons';
+import { RestroLogoIcon, CheckIcon } from '../../components/common/Icons';
 
 interface RegisterPageProps {
   onNavigateLogin: () => void;
@@ -84,31 +84,29 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#0B0E14] text-[#F8FAFC] flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-xl">
         <div className="flex justify-center items-center gap-3">
-          <div className="w-12 h-12 rounded bg-[#1B4332] text-white flex items-center justify-center font-bold text-xl shadow-sm">
-            DF
-          </div>
+          <RestroLogoIcon className="w-10 h-10" />
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#1F2421]">DineFlow</h1>
-            <p className="text-xs text-[#6C757D]">New Restaurant Onboarding</p>
+            <h1 className="text-2xl font-black tracking-tight text-white">RestroPOS</h1>
+            <p className="text-xs text-gray-400">New Restaurant Onboarding</p>
           </div>
         </div>
-        <h2 className="mt-4 text-center text-xl font-bold text-[#1F2421]">
+        <h2 className="mt-4 text-center text-xl font-bold text-white">
           Launch Your Restaurant POS Workspace
         </h2>
-        <p className="mt-1 text-center text-xs text-[#6C757D]">
+        <p className="mt-1 text-center text-xs text-gray-400">
           Initializes your dedicated database, billing sequence, default menu categories, and owner account.
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-xl">
-        <div className="bg-white py-8 px-6 shadow-sm border border-[#E5E0D8] rounded sm:px-10">
+        <div className="bg-[#111622] py-8 px-6 shadow-2xl border border-[#1E2638] rounded-2xl sm:px-10">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                   Restaurant Name *
                 </label>
                 <input
@@ -116,22 +114,22 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
                   required
                   value={restaurantName}
                   onChange={(e) => setRestaurantName(e.target.value)}
-                  placeholder="e.g. The Rustic Oven"
-                  className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332]"
+                  placeholder="e.g. Royal Bites"
+                  className="w-full px-3.5 py-2.5 bg-[#161C2A] border border-[#1E2638] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D26A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                   Restaurant Type *
                 </label>
                 <select
                   value={restaurantType}
                   onChange={(e) => setRestaurantType(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] bg-white focus:outline-none focus:border-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 bg-[#161C2A] border border-[#1E2638] rounded-xl text-sm text-white focus:outline-none focus:border-[#00D26A]"
                 >
                   {RESTAURANT_TYPES.map((t) => (
-                    <option key={t} value={t}>
+                    <option key={t} value={t} className="bg-[#111622] text-white">
                       {t}
                     </option>
                   ))}
@@ -141,7 +139,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                   Owner Full Name *
                 </label>
                 <input
@@ -150,12 +148,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
                   placeholder="e.g. Vikram Sharma"
-                  className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 bg-[#161C2A] border border-[#1E2638] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D26A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                   Contact Phone *
                 </label>
                 <input
@@ -164,13 +162,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 bg-[#161C2A] border border-[#1E2638] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D26A]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                 Owner Email (Login Account) *
               </label>
               <input
@@ -179,13 +177,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="owner@restaurant.com"
-                className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332]"
+                className="w-full px-3.5 py-2.5 bg-[#161C2A] border border-[#1E2638] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D26A]"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                   Password *
                 </label>
                 <input
@@ -194,12 +192,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 6 characters"
-                  className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 bg-[#161C2A] border border-[#1E2638] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D26A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                   Confirm Password *
                 </label>
                 <input
@@ -208,13 +206,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter password"
-                  className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332]"
+                  className="w-full px-3.5 py-2.5 bg-[#161C2A] border border-[#1E2638] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D26A]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                 Full Physical Address *
               </label>
               <textarea
@@ -223,24 +221,24 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="Shop 14, High Street Market, City - 560001"
-                className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332]"
+                className="w-full px-3.5 py-2.5 bg-[#161C2A] border border-[#1E2638] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D26A]"
               />
             </div>
 
             <div className="pt-2">
-              <label className="flex items-start gap-2 cursor-pointer text-xs text-[#6C757D]">
+              <label className="flex items-start gap-2 cursor-pointer text-xs text-gray-400">
                 <input
                   type="checkbox"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="mt-0.5 rounded border-[#E5E0D8] text-[#1B4332] focus:ring-[#1B4332]"
+                  className="mt-0.5 rounded border-[#1E2638] text-[#00D26A] focus:ring-[#00D26A] bg-[#161C2A]"
                 />
                 <span>
                   I agree to the{' '}
                   <button
                     type="button"
                     onClick={onNavigateTerms}
-                    className="text-[#1B4332] underline font-medium"
+                    className="text-[#00D26A] underline font-semibold"
                   >
                     Terms of Service
                   </button>{' '}
@@ -248,7 +246,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
                   <button
                     type="button"
                     onClick={onNavigatePrivacy}
-                    className="text-[#1B4332] underline font-medium"
+                    className="text-[#00D26A] underline font-semibold"
                   >
                     Privacy Policy
                   </button>
@@ -260,26 +258,26 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 px-4 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-sm font-semibold rounded shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50 mt-4"
+              className="w-full py-3 px-4 bg-[#00D26A] hover:bg-[#00B85C] text-[#080A0F] text-sm font-extrabold rounded-xl shadow-lg shadow-[#00D26A]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-4"
             >
               {isSubmitting ? (
                 <span>Provisioning Restaurant Workspace...</span>
               ) : (
                 <>
-                  <AppIcons.Check />
+                  <CheckIcon className="w-4 h-4 text-[#080A0F]" />
                   <span>Register & Launch Workspace</span>
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-[#E5E0D8] text-center">
-            <p className="text-sm text-[#6C757D]">
+          <div className="mt-6 pt-5 border-t border-[#1E2638] text-center">
+            <p className="text-sm text-gray-400">
               Already registered?{' '}
               <button
                 type="button"
                 onClick={onNavigateLogin}
-                className="font-semibold text-[#1B4332] hover:underline"
+                className="font-bold text-[#00D26A] hover:underline ml-1"
               >
                 Sign in to your account
               </button>
