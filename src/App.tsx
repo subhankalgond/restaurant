@@ -116,6 +116,9 @@ const MainShell: React.FC = () => {
       case 'settings':
         return <SettingsPage />;
       case 'superadmin':
+        if (currentUser.role !== 'superadmin') {
+          return <DashboardPage onNavigate={setCurrentTab} />;
+        }
         return <SuperAdminPage />;
       case 'terms':
         return <TermsPage onBack={() => setCurrentTab('dashboard')} />;

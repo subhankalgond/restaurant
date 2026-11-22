@@ -18,8 +18,6 @@ interface AuthContextType {
     restaurantType: any;
   }) => Promise<void>;
   refreshSession: () => void;
-  // Test helper to quickly switch roles in demonstration mode
-  switchRoleTest: (role: Role) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -94,23 +92,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentRestaurant(res.restaurant);
   };
 
-  const switchRoleTest = async (role: Role) => {
-    const raw = localStorage.getItem('dineflow_storage_v2');
-    if (!raw) return;
-    const db = JSON.parse(raw);
-    const target = db.users?.find((u: User) => u.role === role);
-    if (target) {
-      localStorage.setItem('dineflow_auth_user_id', target.id);
-      setCurrentUser(target);
-      if (role === 'superadmin') {
-        setCurrentRestaurant(null);
-      } else {
-        const rest = db.restaurants?.find((r: Restaurant) => r.id === target.restaurantId);
-        setCurrentRestaurant(rest || null);
-      }
-    }
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -120,8 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         register,
-        refreshSession: hydrateSession,
-        switchRoleTest
+        refreshSession: hydrateSession
       }}
     >
       {children}

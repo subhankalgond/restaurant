@@ -40,10 +40,9 @@ interface AppLayoutProps {
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ currentTab, onNavigate, children }) => {
-  const { currentUser, currentRestaurant, logout, switchRoleTest } = useAuth();
+  const { currentUser, currentRestaurant, logout } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
 
   // Super Admin view
   if (currentUser?.role === 'superadmin') {
@@ -61,35 +60,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ currentTab, onNavigate, ch
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            {/* Demonstration role switcher */}
-            <div className="relative">
-              <button
-                onClick={() => setShowRoleSwitcher(!showRoleSwitcher)}
-                className="bg-forest-800 hover:bg-forest-700 text-neutralBg px-2.5 py-1 rounded text-xs flex items-center gap-1.5 border border-forest-700"
-              >
-                <span>Role Sandbox: <strong>Super Admin</strong></span>
-                <span className="text-[10px]">&darr;</span>
-              </button>
-              {showRoleSwitcher && (
-                <div className="absolute right-0 mt-1.5 w-44 bg-white border border-surfaceBorder rounded shadow-md py-1 z-50 text-charcoal-900">
-                  <div className="px-3 py-1 text-[10px] font-semibold text-charcoal-500 uppercase border-b border-surfaceBorder">
-                    Switch Sandbox Role
-                  </div>
-                  {(['superadmin', 'owner', 'cashier', 'kitchen'] as const).map(r => (
-                    <button
-                      key={r}
-                      onClick={() => {
-                        switchRoleTest(r);
-                        setShowRoleSwitcher(false);
-                      }}
-                      className="w-full text-left px-3 py-1.5 text-xs hover:bg-surface capitalize flex items-center justify-between"
-                    >
-                      <span>{r}</span>
-                      {currentUser.role === r && <span className="text-[10px] text-forest-700 font-bold">&bull;</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-forest-800 border border-forest-700 text-xs text-neutralBg">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Platform Super Admin</span>
             </div>
 
             <button
@@ -181,44 +154,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ currentTab, onNavigate, ch
             <span>{isSupabaseConfigured ? 'Supabase Realtime' : 'Local DB'}</span>
           </button>
 
-          {/* Role Sandbox Quick Switcher (Facilitates testing cashier vs owner vs kitchen) */}
-          <div className="relative">
-            <button
-              onClick={() => setShowRoleSwitcher(!showRoleSwitcher)}
-              className="bg-forest-900 hover:bg-black/30 border border-forest-900 text-neutralBg px-2 py-1 rounded flex items-center gap-1.5 text-[11px]"
-              title="Test permissions across staff roles"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-forest-100"></span>
-              <span className="capitalize font-semibold">{currentUser?.role}</span>
-              <span className="text-[9px] text-charcoal-300">&darr;</span>
-            </button>
-
-            {showRoleSwitcher && (
-              <div className="absolute right-0 mt-1.5 w-44 bg-white border border-surfaceBorder rounded shadow-md py-1 z-50 text-charcoal-900">
-                <div className="px-3 py-1 text-[10px] font-semibold text-charcoal-500 uppercase border-b border-surfaceBorder">
-                  Switch Active Role Test
-                </div>
-                {(['owner', 'cashier', 'kitchen', 'superadmin'] as const).map(role => (
-                  <button
-                    key={role}
-                    onClick={() => {
-                      switchRoleTest(role);
-                      setShowRoleSwitcher(false);
-                      if (role === 'kitchen') onNavigate('kitchen');
-                      else if (role === 'cashier') onNavigate('pos');
-                      else if (role === 'superadmin') onNavigate('superadmin');
-                      else onNavigate('dashboard');
-                    }}
-                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-surface flex items-center justify-between ${
-                      currentUser?.role === role ? 'font-semibold text-forest-800 bg-surface' : ''
-                    }`}
-                  >
-                    <span className="capitalize">{role === 'superadmin' ? 'Super Admin' : role}</span>
-                    {currentUser?.role === role && <span className="text-[10px] text-forest-700">Active</span>}
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Authenticated User Role Badge (Read-only, strictly enforced by auth) */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-forest-900/80 border border-forest-800 text-[11px] text-neutralBg">
+            <span className="w-1.5 h-1.5 rounded-full bg-forest-200"></span>
+            <span className="capitalize font-semibold">{currentUser?.role}</span>
           </div>
 
           {/* User Profile Pill */}
