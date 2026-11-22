@@ -51,22 +51,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // Default bootstrap to owner if fresh session
-      const raw = localStorage.getItem('dineflow_storage_v2');
-      if (!storedUserId) {
-        // Seed default owner login session
-        const defaultOwnerId = 'usr_owner_oak';
-        localStorage.setItem('dineflow_auth_user_id', defaultOwnerId);
-        if (raw) {
-          const db = JSON.parse(raw);
-          const owner = db.users?.find((u: User) => u.id === defaultOwnerId);
-          if (owner) {
-            setCurrentUser(owner);
-            const rest = db.restaurants?.find((r: Restaurant) => r.id === owner.restaurantId);
-            setCurrentRestaurant(rest || null);
-          }
-        }
-      }
+      // No active session: leave currentUser as null so Registration page displays first
+      setCurrentUser(null);
+      setCurrentRestaurant(null);
     } catch (e) {
       console.error('Session hydration error:', e);
     } finally {

@@ -28,7 +28,7 @@ type UnauthView = 'login' | 'register' | 'terms' | 'privacy';
 const MainShell: React.FC = () => {
   const { currentUser, isLoading } = useAuth();
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
-  const [unauthView, setUnauthView] = useState<UnauthView>('login');
+  const [unauthView, setUnauthView] = useState<UnauthView>('register');
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
   useEffect(() => {
