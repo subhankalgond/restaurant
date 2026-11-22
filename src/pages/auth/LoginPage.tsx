@@ -37,11 +37,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
     }
   };
 
-  const handleFillDemo = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-  };
-
   const handleForgotSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetEmail.trim()) {
@@ -142,47 +137,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
                 Register your restaurant
               </button>
             </p>
-          </div>
-
-          {/* Quick Demo Access Bar */}
-          <div className="mt-6 pt-5 border-t border-[#E5E0D8]">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-2 text-center">
-              Quick Test Credentials
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handleFillDemo('owner@oakbarrel.com', 'Owner@123')}
-                className="p-2 bg-[#FBF9F5] border border-[#E5E0D8] rounded hover:border-[#1B4332] text-left"
-              >
-                <div className="font-bold text-[#1F2421]">Restaurant Owner</div>
-                <div className="text-[10px] text-[#6C757D]">Full restaurant access</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFillDemo('cashier@oakbarrel.com', 'Cashier@123')}
-                className="p-2 bg-[#FBF9F5] border border-[#E5E0D8] rounded hover:border-[#1B4332] text-left"
-              >
-                <div className="font-bold text-[#1F2421]">Cashier</div>
-                <div className="text-[10px] text-[#6C757D]">POS & billing only</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFillDemo('kitchen@oakbarrel.com', 'Kitchen@123')}
-                className="p-2 bg-[#FBF9F5] border border-[#E5E0D8] rounded hover:border-[#1B4332] text-left"
-              >
-                <div className="font-bold text-[#1F2421]">Kitchen Staff</div>
-                <div className="text-[10px] text-[#6C757D]">KDS screen only</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFillDemo('admin@dineflow.io', 'Admin@Master2026')}
-                className="p-2 bg-[#FBF9F5] border border-[#E5E0D8] rounded hover:border-[#1B4332] text-left"
-              >
-                <div className="font-bold text-[#1B4332]">Platform Admin</div>
-                <div className="text-[10px] text-[#6C757D]">Super Admin Portal</div>
-              </button>
-            </div>
           </div>
         </div>
 
