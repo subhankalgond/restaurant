@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { backend } from '../../db/backendService';
+import { isSupabaseConfigured } from '../../db/supabaseClient';
 import { RestaurantType } from '../../types';
 
 export const SettingsPage: React.FC = () => {
@@ -205,7 +206,7 @@ export const SettingsPage: React.FC = () => {
 
         {/* Payment UPI & Printer */}
         <div className="bg-white border border-surfaceBorder rounded p-4 shadow-xs space-y-3">
-          <h3 className="font-bold text-sm text-forest-900">Payment & Hardware Hardware</h3>
+          <h3 className="font-bold text-sm text-forest-900">Payment & Hardware</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
@@ -228,6 +229,40 @@ export const SettingsPage: React.FC = () => {
                 <option value="80mm">Standard 80mm Roll (3-Inch Counter Thermal)</option>
                 <option value="58mm">Compact 58mm Roll (2-Inch Handheld Thermal)</option>
               </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Supabase Cloud Database Sync */}
+        <div className="bg-white border border-surfaceBorder rounded p-4 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-sm text-forest-900">Centralized Cloud Database (Supabase)</h3>
+            <span
+              className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded ${
+                isSupabaseConfigured ? 'bg-[#EBF5EE] text-[#1B4332]' : 'bg-[#FDF6ED] text-[#A76527]'
+              }`}
+            >
+              {isSupabaseConfigured ? 'Connected & Live Sync' : 'Local Storage Mode'}
+            </span>
+          </div>
+
+          <p className="text-xs text-charcoal-600 leading-relaxed">
+            {isSupabaseConfigured
+              ? 'Your application is connected to Supabase PostgreSQL with real-time WebSockets enabled. POS orders instantly reflect on Kitchen Display screens across different physical devices.'
+              : 'DineFlow is currently running on the high-performance local offline storage engine. To enable real-time multi-device synchronization across multiple POS counters, kitchen tablets, and owner devices, connect Supabase.'}
+          </p>
+
+          <div className="bg-neutralBg border border-surfaceBorder rounded p-3 text-xs space-y-2">
+            <div className="font-bold text-charcoal-900">How to activate Supabase in 2 minutes:</div>
+            <ol className="list-decimal pl-4 space-y-1 text-charcoal-700">
+              <li>Create a free PostgreSQL project at <a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-forest-800 underline font-semibold">supabase.com</a></li>
+              <li>Go to <strong>SQL Editor</strong> in Supabase and paste the contents of <code className="bg-white px-1.5 py-0.5 rounded border border-surfaceBorder font-mono font-bold text-forest-800">supabase/schema.sql</code>, then click <strong>Run</strong>.</li>
+              <li>Copy your <strong>Project URL</strong> and <strong>Anon Public Key</strong> from <em>Project Settings &rarr; API</em>.</li>
+              <li>Add them to your <code className="bg-white px-1.5 py-0.5 rounded border border-surfaceBorder font-mono font-bold text-forest-800">.env</code> file:</li>
+            </ol>
+            <div className="bg-white border border-surfaceBorder rounded p-2 font-mono text-[11px] text-charcoal-800 select-all">
+              VITE_SUPABASE_URL=https://your-project-id.supabase.co<br />
+              VITE_SUPABASE_ANON_KEY=your-anon-key-here
             </div>
           </div>
         </div>

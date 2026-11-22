@@ -12,6 +12,8 @@ import {
   Role,
   RestaurantType
 } from '../types';
+import { supabaseService } from './supabaseService';
+import { isSupabaseConfigured } from './supabaseClient';
 
 // SHA-256 Password Hash Helper using browser standard Web Crypto API
 export async function hashPassword(plainText: string): Promise<string> {
@@ -746,6 +748,20 @@ class BackendService {
     }
 
     this.saveDB(db);
+
+    // Sync to Supabase cloud in background if configured
+    if (isSupabaseConfigured) {
+      supabaseService.pushOrder(finalOrder);
+      if (finalOrder.tableId) {
+        supabaseService.updateTableStatus(
+          finalOrder.tableId,
+          finalOrder.restaurantId,
+          finalOrder.paymentStatus === 'paid' ? 'available' : 'occupied',
+          finalOrder.paymentStatus === 'paid' ? undefined : finalOrder.id
+        );
+      }
+    }
+
     return finalOrder;
   }
 
@@ -767,6 +783,11 @@ class BackendService {
       }
     }
     this.saveDB(db);
+
+    // Sync status update to Supabase cloud
+    if (isSupabaseConfigured) {
+      supabaseService.updateOrderStatus(orderId, restaurantId, status);
+    }
   }
 
   public cancelOrder(caller: { restaurantId: string; role: Role; name: string }, restaurantId: string, orderId: string, reason: string): void {
@@ -805,6 +826,11 @@ class BackendService {
     });
 
     this.saveDB(db);
+
+    // Sync cancelled status to Supabase cloud
+    if (isSupabaseConfigured) {
+      supabaseService.updateOrderStatus(orderId, restaurantId, 'cancelled');
+    }
   }
 
   // --- BASIC INVENTORY ---

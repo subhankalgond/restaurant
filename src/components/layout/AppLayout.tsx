@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { isSupabaseConfigured } from '../../db/supabaseClient';
 import { 
   DashboardIcon, 
   PosIcon, 
@@ -169,6 +170,17 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ currentTab, onNavigate, ch
 
         {/* Right Top Controls */}
         <div className="flex items-center gap-3 text-xs">
+          {/* Cloud Sync Status Indicator */}
+          <button
+            type="button"
+            onClick={() => onNavigate('settings')}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium border border-forest-700 bg-forest-900/70 text-neutralBg hover:bg-forest-900 transition-colors"
+            title={isSupabaseConfigured ? 'Supabase Realtime Cloud Connected' : 'Local Storage Engine. Click to configure Supabase cloud database.'}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isSupabaseConfigured ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+            <span>{isSupabaseConfigured ? 'Supabase Realtime' : 'Local DB'}</span>
+          </button>
+
           {/* Role Sandbox Quick Switcher (Facilitates testing cashier vs owner vs kitchen) */}
           <div className="relative">
             <button
