@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { AppIcons } from '../../components/common/Icons';
+import { ChiliLogoIcon, LockIcon } from '../../components/common/Icons';
 
 interface LoginPageProps {
   onNavigateRegister: () => void;
@@ -48,30 +48,28 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F5F6F5] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center items-center gap-3">
-          <div className="w-12 h-12 rounded bg-[#1B4332] text-white flex items-center justify-center font-bold text-xl shadow-sm">
-            DF
-          </div>
+          <ChiliLogoIcon className="w-10 h-10 shadow-sm" size={40} />
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#1F2421]">DineFlow</h1>
-            <p className="text-xs text-[#6C757D]">Multi-Restaurant POS & Billing Engine</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#171B18]">CHILI POS</h1>
+            <p className="text-xs text-[#777F79]">Multi-Restaurant POS & Billing Engine</p>
           </div>
         </div>
-        <h2 className="mt-6 text-center text-xl font-bold text-[#1F2421]">
+        <h2 className="mt-6 text-center text-xl font-extrabold text-[#171B18]">
           Sign in to your restaurant workspace
         </h2>
-        <p className="mt-1 text-center text-sm text-[#6C757D]">
+        <p className="mt-1 text-center text-xs text-[#777F79]">
           Isolated, encrypted multi-tenant billing platform
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-sm border border-[#E5E0D8] rounded sm:px-10">
+        <div className="bg-white py-8 px-6 shadow-sm border border-[#E7EBE8] rounded-2xl sm:px-10">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D] mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-[#777F79] mb-1">
                 Email Address
               </label>
               <input
@@ -80,13 +78,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@restaurant.com"
-                className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332] focus:ring-1 focus:ring-[#1B4332]"
+                className="w-full px-3.5 py-2.5 border border-[#E7EBE8] rounded-xl text-sm text-[#171B18] placeholder-[#ADB5BD] focus:outline-none focus:border-[#078F36]"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6C757D]">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#777F79]">
                   Password
                 </label>
                 <button
@@ -95,7 +93,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
                     setResetEmail(email);
                     setShowForgotModal(true);
                   }}
-                  className="text-xs text-[#2D6A4F] hover:underline"
+                  className="text-xs font-semibold text-[#078F36] hover:underline"
                 >
                   Forgot password?
                 </button>
@@ -106,33 +104,33 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] placeholder-[#ADB5BD] focus:outline-none focus:border-[#1B4332] focus:ring-1 focus:ring-[#1B4332]"
+                className="w-full px-3.5 py-2.5 border border-[#E7EBE8] rounded-xl text-sm text-[#171B18] placeholder-[#ADB5BD] focus:outline-none focus:border-[#078F36]"
               />
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 px-4 bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-sm font-semibold rounded shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 px-4 bg-[#078F36] hover:bg-[#087A32] text-white text-sm font-bold rounded-xl shadow-md shadow-[#078F36]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
             >
               {isSubmitting ? (
                 <span>Authenticating...</span>
               ) : (
                 <>
-                  <AppIcons.Lock />
+                  <LockIcon className="w-4 h-4 text-white" />
                   <span>Sign In</span>
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-[#E5E0D8] text-center">
-            <p className="text-sm text-[#6C757D]">
+          <div className="mt-6 pt-5 border-t border-[#E7EBE8] text-center">
+            <p className="text-sm text-[#777F79]">
               New restaurant?{' '}
               <button
                 type="button"
                 onClick={onNavigateRegister}
-                className="font-semibold text-[#1B4332] hover:underline"
+                className="font-bold text-[#078F36] hover:underline"
               >
                 Register your restaurant
               </button>
@@ -140,7 +138,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
           </div>
         </div>
 
-        <div className="mt-6 text-center text-xs text-[#6C757D] flex justify-center gap-4">
+        <div className="mt-6 text-center text-xs text-[#777F79] flex justify-center gap-4">
           <span>Protected by SHA-256 Auth</span>
           <span>•</span>
           <span>Brute Force Throttling</span>
@@ -151,13 +149,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded border border-[#E5E0D8] shadow-lg max-w-sm w-full p-6">
-            <h3 className="text-base font-bold text-[#1F2421] mb-2">Reset Password</h3>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-2xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-[#E7EBE8] shadow-xl max-w-sm w-full p-6">
+            <h3 className="text-base font-bold text-[#171B18] mb-2">Reset Password</h3>
             {resetSuccess ? (
               <div className="space-y-4">
-                <div className="p-3 bg-[#EBF5EE] border border-[#C2E0C6] rounded text-xs text-[#1B4332]">
-                  A temporary password reset link has been dispatched to <strong>{resetEmail}</strong>. In demonstration mode, use the default credentials or contact your restaurant owner.
+                <div className="p-3 bg-[#F0F8F3] border border-[#D8EFDF] rounded-xl text-xs text-[#078F36]">
+                  A temporary password reset link has been dispatched to <strong>{resetEmail}</strong>.
                 </div>
                 <button
                   type="button"
@@ -165,18 +163,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
                     setShowForgotModal(false);
                     setResetSuccess(false);
                   }}
-                  className="w-full py-2 bg-[#1B4332] text-white text-xs font-semibold rounded hover:bg-[#2D6A4F]"
+                  className="w-full py-2 bg-[#078F36] text-white text-xs font-bold rounded-xl hover:bg-[#087A32]"
                 >
                   Return to Login
                 </button>
               </div>
             ) : (
               <form onSubmit={handleForgotSubmit} className="space-y-4">
-                <p className="text-xs text-[#6C757D]">
+                <p className="text-xs text-[#777F79]">
                   Enter your registered restaurant email to receive a password recovery link.
                 </p>
                 <div>
-                  <label className="block text-xs font-semibold text-[#6C757D] mb-1">
+                  <label className="block text-xs font-semibold text-[#777F79] mb-1">
                     Email Address
                   </label>
                   <input
@@ -184,20 +182,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
                     required
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-[#E5E0D8] rounded text-sm text-[#1F2421] focus:outline-none focus:border-[#1B4332]"
+                    className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl text-sm text-[#171B18] focus:outline-none focus:border-[#078F36]"
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(false)}
-                    className="px-3 py-1.5 border border-[#E5E0D8] rounded text-xs text-[#6C757D] hover:bg-[#FBF9F5]"
+                    className="px-3 py-1.5 border border-[#E7EBE8] rounded-xl text-xs text-[#777F79] hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-[#1B4332] text-white rounded text-xs font-semibold hover:bg-[#2D6A4F]"
+                    className="px-4 py-1.5 bg-[#078F36] text-white rounded-xl text-xs font-bold hover:bg-[#087A32]"
                   >
                     Send Reset Link
                   </button>

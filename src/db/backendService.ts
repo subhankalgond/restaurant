@@ -500,6 +500,8 @@ class BackendService {
     password: string;
     address: string;
     restaurantType: RestaurantType;
+    gstNumber?: string;
+    fssaiNumber?: string;
   }): Promise<{ user: User; restaurant: Restaurant }> {
     const db = this.loadDB();
     const emailKey = data.email.toLowerCase().trim();
@@ -521,6 +523,8 @@ class BackendService {
       phone: data.phone.trim(),
       address: data.address.trim(),
       restaurantType: data.restaurantType,
+      gstNumber: data.gstNumber?.trim() || undefined,
+      fssaiNumber: data.fssaiNumber?.trim() || undefined,
       currency: 'INR',
       currencySymbol: '₹',
       taxRatePercent: 5.0,

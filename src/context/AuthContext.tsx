@@ -16,6 +16,8 @@ interface AuthContextType {
     password: string;
     address: string;
     restaurantType: any;
+    gstNumber?: string;
+    fssaiNumber?: string;
   }) => Promise<void>;
   refreshSession: () => void;
 }
