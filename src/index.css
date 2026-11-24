@@ -3,40 +3,41 @@
 @tailwind utilities;
 
 :root {
-  --bg-main: #FBF9F5;
-  --bg-surface: #F3EFEA;
-  --border-muted: #E5DFD7;
-  --forest-dark: #1B4332;
-  --forest-light: #2D6A4F;
-  --text-charcoal: #1F2421;
-  --text-muted: #6B746E;
+  --bg-main: #F5F6F5;
+  --bg-surface: #FFFFFF;
+  --border-muted: #E7EBE8;
+  --primary-green: #078F36;
+  --soft-mint: #D8EFDF;
+  --light-mint-bg: #F0F8F3;
+  --text-primary: #171B18;
+  --text-secondary: #777F79;
 }
 
 body {
   margin: 0;
-  background-color: var(--bg-main);
-  color: var(--text-charcoal);
-  font-family: 'Plus Jakarta Sans', 'Public Sans', system-ui, -apple-system, sans-serif;
+  background-color: #F5F6F5;
+  color: #171B18;
+  font-family: 'Plus Jakarta Sans', 'DM Sans', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbars */
+/* Custom Clean Scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F3EFEA;
+  background: #F5F6F5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D2C9BE;
-  border-radius: 2px;
+  background: #D8EFDF;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1B4332;
+  background: #078F36;
 }
 
 /* Receipt Print Format (80mm & 58mm Thermal Printers) */
@@ -51,17 +52,10 @@ body {
     position: absolute;
     left: 0;
     top: 0;
-    width: 80mm;
-    margin: 0 auto;
-    padding: 2mm;
-    background: #FFFFFF;
-    color: #000000;
-    font-size: 11px;
-    font-family: monospace;
-    line-height: 1.25;
-  }
-  @page {
+    width: 100%;
     margin: 0;
-    size: 80mm auto;
+    padding: 0;
+    color: black !important;
+    background: white !important;
   }
 }

@@ -2,19 +2,22 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { isSupabaseConfigured } from '../../db/supabaseClient';
 import { 
+  ChiliLogoIcon,
+  MenuBookIcon,
+  PosIcon,
   DashboardIcon, 
-  PosIcon, 
   OrdersIcon, 
   KitchenIcon, 
-  TablesIcon, 
-  MenuIcon, 
+  TableServicesIcon, 
   InventoryIcon, 
   StaffIcon, 
-  ReportsIcon, 
+  AccountingIcon, 
   SettingsIcon, 
   ShieldIcon, 
   LogoutIcon,
-  CloseIcon 
+  CloseIcon,
+  ReservationIcon,
+  DeliveryIcon
 } from '../common/Icons';
 
 export type NavTab = 
@@ -41,258 +44,223 @@ interface AppLayoutProps {
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ currentTab, onNavigate, children }) => {
   const { currentUser, currentRestaurant, logout } = useAuth();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Super Admin view
   if (currentUser?.role === 'superadmin') {
     return (
-      <div className="min-h-screen bg-neutralBg flex flex-col antialiased">
-        <header className="h-14 bg-forest-900 text-neutralBg flex items-center justify-between px-4 border-b border-forest-800 flex-shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded bg-forest-700 text-white flex items-center justify-center font-bold text-xs tracking-wider">
-              DF
-            </div>
+      <div className="min-h-screen bg-[#F5F6F5] text-[#171B18] flex flex-col antialiased">
+        <header className="h-16 bg-white text-[#171B18] flex items-center justify-between px-6 border-b border-[#E7EBE8] flex-shrink-0 shadow-sm">
+          <div className="flex items-center gap-3">
+            <ChiliLogoIcon className="w-8 h-8" />
             <div>
-              <span className="font-bold text-sm tracking-tight text-white">DineFlow Super Admin</span>
-              <span className="text-[10px] text-charcoal-300 block -mt-0.5">Centralized Platform Control</span>
+              <span className="font-extrabold text-base tracking-tight text-[#171B18]">CHILI POS Super Admin</span>
+              <span className="text-[11px] text-[#777F79] block -mt-0.5">Centralized Platform Control</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-forest-800 border border-forest-700 text-xs text-neutralBg">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F0F8F3] border border-[#D8EFDF] text-xs font-semibold text-[#078F36]">
+              <span className="w-2 h-2 rounded-full bg-[#078F36]"></span>
               <span>Platform Super Admin</span>
             </div>
 
             <button
               onClick={logout}
-              className="text-neutralBg hover:text-earthRed flex items-center gap-1 px-2 py-1 rounded hover:bg-forest-800"
+              className="text-[#777F79] hover:text-[#D94A43] flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E7EBE8] hover:border-red-200 transition-colors font-medium"
             >
-              <LogoutIcon className="w-3.5 h-3.5" />
+              <LogoutIcon className="w-3.5 h-3.5 text-[#D94A43]" />
               <span>Log out</span>
             </button>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto p-6">
           {children}
         </main>
       </div>
     );
   }
 
-  // Define navigational tabs according to role
+  // Define navigational tabs matching the CHILI POS sidebar
+  // Menu (POS/Billing), Table Services (Tables), Reservation (Orders), Delivery (Kitchen), Accounting (Reports), Settings
   const navItems = [
+    { id: 'pos', label: 'Menu', icon: MenuBookIcon, roles: ['owner', 'cashier'] },
     { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon, roles: ['owner'] },
-    { id: 'pos', label: 'POS & Billing', icon: PosIcon, roles: ['owner', 'cashier'] },
-    { id: 'orders', label: 'Orders', icon: OrdersIcon, roles: ['owner', 'cashier', 'kitchen'] },
-    { id: 'kitchen', label: 'Kitchen Display', icon: KitchenIcon, roles: ['owner', 'kitchen'] },
-    { id: 'tables', label: 'Table Management', icon: TablesIcon, roles: ['owner', 'cashier'] },
-    { id: 'menu', label: 'Menu Management', icon: MenuIcon, roles: ['owner'] },
+    { id: 'tables', label: 'Table Services', icon: TableServicesIcon, roles: ['owner', 'cashier'] },
+    { id: 'orders', label: 'Reservation', icon: ReservationIcon, roles: ['owner', 'cashier', 'kitchen'] },
+    { id: 'kitchen', label: 'Delivery', icon: DeliveryIcon, roles: ['owner', 'kitchen'] },
+    { id: 'reports', label: 'Accounting', icon: AccountingIcon, roles: ['owner'] },
     { id: 'inventory', label: 'Inventory', icon: InventoryIcon, roles: ['owner'] },
-    { id: 'staff', label: 'Staff Management', icon: StaffIcon, roles: ['owner'] },
-    { id: 'reports', label: 'Sales Reports', icon: ReportsIcon, roles: ['owner'] },
+    { id: 'staff', label: 'Staff', icon: StaffIcon, roles: ['owner'] },
     { id: 'settings', label: 'Settings', icon: SettingsIcon, roles: ['owner'] }
   ];
 
   const allowedNavItems = navItems.filter(item => item.roles.includes(currentUser?.role || ''));
 
   return (
-    <div className="min-h-screen bg-neutralBg flex flex-col antialiased">
-      {/* Top Header */}
-      <header className="h-14 bg-forest-800 text-neutralBg flex items-center justify-between px-3.5 border-b border-forest-900 shadow-xs z-30 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          {/* Mobile hamburger toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-1.5 rounded hover:bg-forest-900 text-neutralBg"
-            aria-label="Toggle Navigation"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          {/* Desktop sidebar toggle */}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hidden md:flex p-1.5 rounded hover:bg-forest-900 text-neutralBg"
-            title="Toggle Sidebar"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h10M4 18h16" />
-            </svg>
-          </button>
-
-          {/* Brand & Workspace Label */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate(currentUser?.role === 'kitchen' ? 'kitchen' : 'pos')}>
-            <div className="w-7 h-7 rounded bg-forest-600 text-white flex items-center justify-center font-bold text-xs tracking-wider">
-              DF
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="font-bold text-xs text-white tracking-wide">
-                {currentRestaurant?.name || 'Restaurant Workspace'}
+    <div className="min-h-screen bg-[#F5F6F5] text-[#171B18] flex antialiased">
+      {/* ---------------------------------------------------- */}
+      {/* 1. LEFT SIDEBAR (White, matching CHILI POS)          */}
+      {/* ---------------------------------------------------- */}
+      <aside className="w-56 bg-white border-r border-[#E7EBE8] flex flex-col justify-between hidden md:flex flex-shrink-0 sticky top-0 h-screen select-none z-30 shadow-sm">
+        <div className="flex flex-col flex-1 overflow-y-auto">
+          {/* Brand Logo & Name */}
+          <div className="p-5 pb-6 flex items-center gap-2.5 cursor-pointer" onClick={() => onNavigate('pos')}>
+            <ChiliLogoIcon className="w-8 h-8 flex-shrink-0" />
+            <div className="flex flex-col">
+              <span className="font-extrabold text-sm text-[#171B18] tracking-tight leading-none uppercase">
+                {currentRestaurant?.name || 'CHILI POS'}
               </span>
-              <span className="text-[10px] text-charcoal-300 font-normal">
-                {currentRestaurant?.restaurantType || 'DineFlow POS'}
+              <span className="text-[10px] text-[#777F79] font-medium tracking-wide mt-1">
+                Restaurant POS
               </span>
             </div>
           </div>
+
+          {/* Navigation Links */}
+          <nav className="px-3 space-y-1.5 pt-1">
+            {allowedNavItems.map(item => {
+              const Icon = item.icon;
+              const isActive = currentTab === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate(item.id as NavTab)}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full text-xs font-semibold transition-all duration-150 text-left ${
+                    isActive
+                      ? 'bg-[#078F36] text-white font-bold shadow-md shadow-[#078F36]/25'
+                      : 'text-[#777F79] hover:text-[#171B18] hover:bg-[#F0F8F3]'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-[#078F36]'}`} />
+                  <span className="truncate">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Right Top Controls */}
-        <div className="flex items-center gap-3 text-xs">
-          {/* Cloud Sync Status Indicator */}
-          <button
-            type="button"
-            onClick={() => onNavigate('settings')}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium border border-forest-700 bg-forest-900/70 text-neutralBg hover:bg-forest-900 transition-colors"
-            title={isSupabaseConfigured ? 'Supabase Realtime Cloud Connected' : 'Local Storage Engine. Click to configure Supabase cloud database.'}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${isSupabaseConfigured ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
-            <span>{isSupabaseConfigured ? 'Supabase Realtime' : 'Local DB'}</span>
-          </button>
-
-          {/* Authenticated User Role Badge (Read-only, strictly enforced by auth) */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-forest-900/80 border border-forest-800 text-[11px] text-neutralBg">
-            <span className="w-1.5 h-1.5 rounded-full bg-forest-200"></span>
-            <span className="capitalize font-semibold">{currentUser?.role}</span>
-          </div>
-
-          {/* User Profile Pill */}
-          <div className="hidden sm:flex items-center gap-1.5 text-charcoal-100">
-            <div className="w-6 h-6 rounded-full bg-forest-700 text-white font-bold flex items-center justify-center text-[10px] border border-forest-600">
-              {currentUser?.name?.charAt(0) || 'U'}
+        {/* Bottom Sidebar: Staff Chips & Logout */}
+        <div className="p-3 border-t border-[#E7EBE8] space-y-2 bg-white">
+          {/* User profile chips matching the FM / AM chips in screenshot */}
+          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-[#F5F6F5] border border-[#E7EBE8]">
+            <div className="w-6 h-6 rounded-full bg-[#D8EFDF] text-[#078F36] font-bold flex items-center justify-center text-[10px] flex-shrink-0">
+              {currentUser?.name?.slice(0, 2).toUpperCase() || 'FM'}
             </div>
-            <span className="truncate max-w-[120px] font-medium text-[11px]">{currentUser?.name}</span>
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-[11px] text-[#171B18] truncate">
+                {currentUser?.name || 'Floyd Miles'}
+              </span>
+              <span className="text-[9px] text-[#777F79] capitalize leading-none -mt-0.5">
+                {currentUser?.role || 'Cashier'}
+              </span>
+            </div>
           </div>
 
-          {/* Sign Out Button */}
+          {/* Logout Button */}
           <button
             onClick={logout}
-            className="text-neutralBg hover:text-earthRed flex items-center gap-1 p-1 rounded hover:bg-forest-900"
-            title="Log Out"
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-[#777F79] hover:text-[#D94A43] hover:bg-red-50 rounded-xl text-xs font-semibold transition-colors"
           >
-            <LogoutIcon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline text-[11px]">Logout</span>
+            <LogoutIcon className="w-4 h-4 text-[#777F79] group-hover:text-[#D94A43]" />
+            <span>Logout</span>
           </button>
         </div>
-      </header>
+      </aside>
 
-      {/* Main Container */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar */}
-        <aside
-          className={`${
-            sidebarCollapsed ? 'w-14' : 'w-52'
-          } hidden md:flex flex-col bg-surface border-r border-surfaceBorder transition-all duration-200 flex-shrink-0 select-none justify-between`}
-        >
-          {/* Navigation Links */}
-          <div className="py-2.5 overflow-y-auto">
-            <nav className="space-y-0.5 px-2">
-              {allowedNavItems.map(item => {
-                const Icon = item.icon;
-                const isActive = currentTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => onNavigate(item.id as NavTab)}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-xs transition-colors group relative ${
-                      isActive
-                        ? 'bg-forest-800 text-white font-semibold shadow-xs'
-                        : 'text-charcoal-700 hover:text-charcoal-900 hover:bg-neutralBg'
-                    }`}
-                    title={sidebarCollapsed ? item.label : undefined}
-                  >
-                    <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-charcoal-500 group-hover:text-charcoal-900'}`} />
-                    {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
-                  </button>
-                );
-              })}
-            </nav>
+      {/* ---------------------------------------------------- */}
+      {/* 2. MAIN CONTENT AREA                                 */}
+      {/* ---------------------------------------------------- */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-[#F5F6F5]">
+        {/* Mobile Header */}
+        <header className="h-14 bg-white border-b border-[#E7EBE8] flex md:hidden items-center justify-between px-4 z-20 shadow-xs">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-1.5 rounded-lg bg-[#F5F6F5] text-[#171B18] border border-[#E7EBE8]"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <ChiliLogoIcon className="w-7 h-7" />
+            <span className="font-bold text-xs text-[#171B18]">{currentRestaurant?.name || 'CHILI POS'}</span>
           </div>
 
-          {/* Bottom Footer Info */}
-          <div className="p-2.5 border-t border-surfaceBorder bg-neutralBg/60 text-[11px]">
-            {!sidebarCollapsed ? (
-              <div className="flex flex-col gap-1">
-                <div className="font-semibold text-charcoal-900 truncate" title={currentRestaurant?.name}>
-                  {currentRestaurant?.name}
-                </div>
-                <div className="flex items-center justify-between text-charcoal-500">
-                  <span className="capitalize">{currentUser?.role}</span>
-                  <span className="text-[10px] text-forest-700 font-mono font-semibold">Active</span>
-                </div>
-                <div className="pt-1 border-t border-surfaceBorder flex justify-between text-[10px] text-charcoal-500">
-                  <button onClick={() => onNavigate('support')} className="hover:underline">Support</button>
-                  <button onClick={() => onNavigate('terms')} className="hover:underline">Terms</button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex justify-center">
-                <span className="w-2 h-2 rounded-full bg-forest-700" title="Connected"></span>
-              </div>
-            )}
-          </div>
-        </aside>
+          <button
+            onClick={() => onNavigate('pos')}
+            className="px-3 py-1 rounded-full bg-[#078F36] text-white font-bold text-xs"
+          >
+            POS
+          </button>
+        </header>
 
-        {/* Mobile Navigation Overlay Drawer */}
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 z-40 md:hidden flex">
-            <div className="fixed inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)}></div>
-            <div className="relative w-64 bg-surface text-charcoal-900 flex flex-col justify-between p-3 z-50 border-r border-surfaceBorder">
-              <div>
-                <div className="flex items-center justify-between pb-3 border-b border-surfaceBorder">
-                  <div className="font-bold text-xs text-forest-800">{currentRestaurant?.name}</div>
-                  <button onClick={() => setMobileMenuOpen(false)} className="text-charcoal-500">
-                    <CloseIcon className="w-4 h-4" />
-                  </button>
-                </div>
-                <nav className="mt-3 space-y-1">
-                  {allowedNavItems.map(item => {
-                    const Icon = item.icon;
-                    const isActive = currentTab === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          onNavigate(item.id as NavTab);
-                          setMobileMenuOpen(false);
-                        }}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-xs ${
-                          isActive ? 'bg-forest-800 text-white font-bold' : 'text-charcoal-700 hover:bg-neutralBg'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{item.label}</span>
-                      </button>
-                    );
-                  })}
-                </nav>
-              </div>
-
-              <div className="pt-3 border-t border-surfaceBorder">
-                <button
-                  onClick={() => {
-                    logout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 text-earthRed text-xs font-semibold py-1.5"
-                >
-                  <LogoutIcon className="w-4 h-4" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Main Application Area */}
-        <main className="flex-1 overflow-y-auto bg-neutralBg text-charcoal-900 flex flex-col min-w-0">
+        {/* Workspace Canvas */}
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
+
+      {/* ---------------------------------------------------- */}
+      {/* 3. MOBILE DRAWER                                     */}
+      {/* ---------------------------------------------------- */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs" onClick={() => setMobileMenuOpen(false)}></div>
+          <div className="relative w-64 bg-white text-[#171B18] flex flex-col justify-between p-4 z-50 border-r border-[#E7EBE8] h-full shadow-xl">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-[#E7EBE8]">
+                <div className="flex items-center gap-2">
+                  <ChiliLogoIcon className="w-8 h-8" />
+                  <span className="font-extrabold text-sm text-[#171B18]">CHILI POS</span>
+                </div>
+                <button onClick={() => setMobileMenuOpen(false)} className="text-[#777F79] hover:text-[#171B18]">
+                  <CloseIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              <nav className="mt-4 space-y-1">
+                {allowedNavItems.map(item => {
+                  const Icon = item.icon;
+                  const isActive = currentTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        onNavigate(item.id as NavTab);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-full text-xs font-semibold ${
+                        isActive
+                          ? 'bg-[#078F36] text-white font-bold'
+                          : 'text-[#777F79] hover:bg-[#F0F8F3]'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#078F36]'}`} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="pt-4 border-t border-[#E7EBE8]">
+              <button
+                onClick={() => {
+                  logout();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 px-3 rounded-full bg-red-50 text-[#D94A43] border border-red-100 flex items-center justify-center gap-2 font-bold text-xs"
+              >
+                <LogoutIcon className="w-4 h-4" />
+                <span>Log Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,41 +7,68 @@ export default {
   theme: {
     extend: {
       colors: {
-        neutralBg: '#FBF9F5',
-        surface: '#F3EFEA',
-        surfaceBorder: '#E5DFD7',
+        // CHILI POS exact color specification
+        chiliGreen: {
+          DEFAULT: '#078F36',
+          dark: '#087A32',
+          light: '#D8EFDF',
+          bg: '#F0F8F3',
+        },
+        chiliBg: '#F5F6F5',
+        chiliCard: '#FFFFFF',
+        chiliText: {
+          DEFAULT: '#171B18',
+          secondary: '#777F79',
+          muted: '#9CA3AF',
+        },
+        chiliBorder: '#E7EBE8',
+        chiliWarning: '#F5BD3D',
+        chiliError: '#D94A43',
+
+        // Mapped tokens ensuring all existing pages transition seamlessly
+        neutralBg: '#F5F6F5',
+        surface: '#FFFFFF',
+        surfaceBorder: '#E7EBE8',
         forest: {
-          900: '#132E22',
-          800: '#1B4332',
-          700: '#245842',
-          600: '#2D6A4F',
-          100: '#E9F3EE',
-          50: '#F4F9F6',
+          900: '#087A32',
+          800: '#078F36',
+          700: '#087A32',
+          600: '#0A9C3D',
+          100: '#D8EFDF',
+          50: '#F0F8F3',
         },
         charcoal: {
-          900: '#1F2421',
-          700: '#404743',
-          500: '#6B746E',
-          300: '#A2AAA4',
+          900: '#171B18',
+          700: '#323834',
+          500: '#777F79',
+          300: '#B5BCB7',
+          100: '#E7EBE8',
         },
         earthAmber: {
-          DEFAULT: '#A76527',
-          light: '#F8F1EB',
-          border: '#E3CCA8',
+          DEFAULT: '#F5BD3D',
+          light: '#FEF9EE',
+          border: '#FDE68A',
         },
         earthRed: {
-          DEFAULT: '#9E3A3A',
-          light: '#F8ECEC',
-          border: '#E8BDBD',
+          DEFAULT: '#D94A43',
+          light: '#FDF2F2',
+          border: '#FECACA',
         }
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Public Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', '"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       borderRadius: {
-        DEFAULT: '4px',
-        md: '6px',
-        lg: '8px',
+        DEFAULT: '8px',
+        md: '10px',
+        lg: '14px',
+        xl: '18px',
+        '2xl': '22px',
+        '3xl': '28px',
+      },
+      boxShadow: {
+        card: '0 2px 8px -2px rgba(23, 27, 24, 0.05), 0 1px 4px -1px rgba(23, 27, 24, 0.03)',
+        panel: '0 4px 20px -4px rgba(23, 27, 24, 0.06)',
       }
     },
   },
