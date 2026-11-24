@@ -34,30 +34,39 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {/* Toast Render Strip */}
+      {/* Toast Notification Stack */}
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none">
         {toasts.map(toast => {
-          let borderClass = 'border-l-4 border-l-forest-800';
-          if (toast.type === 'success') borderClass = 'border-l-4 border-l-forest-700';
-          else if (toast.type === 'warning') borderClass = 'border-l-4 border-l-earthAmber';
-          else if (toast.type === 'error') borderClass = 'border-l-4 border-l-earthRed';
+          let indicatorBg = 'bg-[#078F36]';
+          let borderClass = 'border-l-4 border-l-[#078F36]';
+          if (toast.type === 'success') {
+            indicatorBg = 'bg-[#078F36]';
+            borderClass = 'border-l-4 border-l-[#078F36]';
+          } else if (toast.type === 'warning') {
+            indicatorBg = 'bg-[#F5BD3D]';
+            borderClass = 'border-l-4 border-l-[#F5BD3D]';
+          } else if (toast.type === 'error') {
+            indicatorBg = 'bg-[#D94A43]';
+            borderClass = 'border-l-4 border-l-[#D94A43]';
+          } else {
+            indicatorBg = 'bg-blue-600';
+            borderClass = 'border-l-4 border-l-blue-600';
+          }
 
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto flex items-center justify-between p-3 rounded bg-white border border-surfaceBorder shadow-sm ${borderClass} text-xs text-charcoal-900`}
+              className={`pointer-events-auto flex items-center justify-between p-3.5 rounded-xl bg-white border border-[#E7EBE8] shadow-lg ${borderClass} text-xs text-[#171B18] transition-all`}
             >
-              <div className="flex items-center gap-2">
-                {toast.type === 'success' && (
-                  <span className="w-4 h-4 rounded-full bg-forest-100 text-forest-800 flex items-center justify-center flex-shrink-0">
-                    <CheckIcon className="w-3 h-3" />
-                  </span>
-                )}
-                <span className="font-medium">{toast.message}</span>
+              <div className="flex items-center gap-2.5">
+                <span className={`w-3.5 h-3.5 rounded-full ${indicatorBg} text-white flex items-center justify-center flex-shrink-0 text-[10px]`}>
+                  <CheckIcon className="w-2.5 h-2.5 text-white" />
+                </span>
+                <span className="font-bold text-[#171B18] text-xs">{toast.message}</span>
               </div>
               <button
                 onClick={() => removeToast(toast.id)}
-                className="ml-3 text-charcoal-500 hover:text-charcoal-900 p-0.5 rounded"
+                className="ml-3 text-[#777F79] hover:text-[#171B18] p-1 rounded-lg hover:bg-[#F5F6F5]"
                 title="Dismiss"
               >
                 <CloseIcon className="w-3.5 h-3.5" />

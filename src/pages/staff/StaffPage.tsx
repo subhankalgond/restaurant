@@ -72,80 +72,91 @@ export const StaffPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-4 md:p-6 max-w-6xl mx-auto w-full">
+    <div className="flex-1 flex flex-col p-4 md:p-6 max-w-6xl mx-auto w-full bg-[#F5F6F5] text-[#171B18]">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-surfaceBorder gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E7EBE8] gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-charcoal-900 tracking-tight">Staff Management</h1>
-          <p className="text-xs text-charcoal-500 mt-0.5">Manage cashier terminals, kitchen crew accounts and credential access</p>
+          <h1 className="text-xl md:text-2xl font-extrabold text-[#171B18] tracking-tight">Staff Management</h1>
+          <p className="text-xs text-[#59615B] font-medium mt-0.5">Manage cashier terminals, kitchen crew accounts and credential access</p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 bg-forest-800 hover:bg-forest-900 text-white px-3.5 py-1.5 rounded text-xs font-semibold shadow-xs"
+          className="flex items-center gap-1.5 bg-[#078F36] hover:bg-[#087A32] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-[#078F36]/20 transition-all self-start"
         >
-          <PlusIcon className="w-3.5 h-3.5" />
+          <PlusIcon className="w-3.5 h-3.5 text-white" />
           <span>Add Staff Member</span>
         </button>
       </div>
 
       {/* Role explanation */}
-      <div className="mt-4 p-3 bg-surface border border-surfaceBorder rounded text-xs">
-        <h4 className="font-bold text-forest-900 mb-1">Role Permissions Enforcement</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px] text-charcoal-600">
-          <div><strong className="text-charcoal-900">Owner:</strong> Full access to POS, menus, tables, staff, inventory and financial reports.</div>
-          <div><strong className="text-charcoal-900">Cashier:</strong> Restricted to POS billing, tables, order creation and receipts.</div>
-          <div><strong className="text-charcoal-900">Kitchen Staff:</strong> Restricted to the Kitchen Display System (KDS) order board.</div>
+      <div className="mt-4 p-4 bg-[#F0F8F3] border border-[#D8EFDF] rounded-2xl text-xs text-[#171B18]">
+        <h4 className="font-extrabold text-sm text-[#078F36] mb-1.5">Role Permissions Enforcement</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-[#171B18]">
+          <div className="bg-white/80 p-2.5 rounded-xl border border-[#D8EFDF]">
+            <strong className="text-[#078F36] block font-extrabold mb-0.5">Owner</strong>
+            <span className="text-[#59615B] font-medium">Full access to POS, menus, tables, staff, inventory and financial reports.</span>
+          </div>
+          <div className="bg-white/80 p-2.5 rounded-xl border border-[#D8EFDF]">
+            <strong className="text-[#078F36] block font-extrabold mb-0.5">Cashier</strong>
+            <span className="text-[#59615B] font-medium">Restricted to POS billing, tables, order creation and receipts.</span>
+          </div>
+          <div className="bg-white/80 p-2.5 rounded-xl border border-[#D8EFDF]">
+            <strong className="text-[#078F36] block font-extrabold mb-0.5">Kitchen Staff</strong>
+            <span className="text-[#59615B] font-medium">Restricted to the Kitchen Display System (KDS) order board.</span>
+          </div>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-surfaceBorder rounded shadow-xs mt-4 overflow-hidden">
+      <div className="bg-white border border-[#E7EBE8] rounded-2xl shadow-sm mt-4 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-surface border-b border-surfaceBorder text-charcoal-700 font-semibold select-none">
-                <th className="py-2.5 px-3">Staff Name</th>
-                <th className="py-2.5 px-3">Email Address</th>
-                <th className="py-2.5 px-3">Phone</th>
-                <th className="py-2.5 px-3">Role</th>
-                <th className="py-2.5 px-3 text-center">Status</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
+              <tr className="bg-[#F5F6F5] border-b border-[#E7EBE8] text-[#171B18] font-extrabold select-none">
+                <th className="py-3 px-3.5">Staff Name</th>
+                <th className="py-3 px-3.5">Email Address</th>
+                <th className="py-3 px-3.5">Phone</th>
+                <th className="py-3 px-3.5">Role</th>
+                <th className="py-3 px-3.5 text-center">Status</th>
+                <th className="py-3 px-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-surfaceBorder">
+            <tbody className="divide-y divide-[#E7EBE8]">
               {staffList.map(member => (
-                <tr key={member.id} className="hover:bg-neutralBg/70 transition-colors">
-                  <td className="py-2.5 px-3">
-                    <span className="font-semibold text-charcoal-900">{member.name}</span>
+                <tr key={member.id} className="hover:bg-[#F0F8F3]/60 transition-colors">
+                  <td className="py-3 px-3.5">
+                    <span className="font-extrabold text-[#171B18] text-xs">{member.name}</span>
                     {member.id === currentUser?.id && (
-                      <span className="ml-2 text-[10px] text-forest-700 bg-forest-100 px-1.5 py-0.5 rounded font-bold">
+                      <span className="ml-2 text-[10px] text-[#078F36] bg-[#D8EFDF] px-2 py-0.5 rounded-full font-bold">
                         YOU
                       </span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3 font-mono text-charcoal-700">{member.email}</td>
-                  <td className="py-2.5 px-3 font-mono text-charcoal-500">{member.phone || 'N/A'}</td>
-                  <td className="py-2.5 px-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface text-charcoal-800">
+                  <td className="py-3 px-3.5 font-mono font-bold text-[#171B18]">{member.email}</td>
+                  <td className="py-3 px-3.5 font-mono font-semibold text-[#59615B]">{member.phone || 'N/A'}</td>
+                  <td className="py-3 px-3.5">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-[#F5F6F5] border border-[#E7EBE8] text-[#171B18]">
                       {member.role}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-center">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                      member.isActive ? 'bg-forest-100 text-forest-700' : 'bg-earthRed-light text-earthRed'
+                  <td className="py-3 px-3.5 text-center">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${
+                      member.isActive 
+                        ? 'bg-[#F0F8F3] text-[#078F36] border-[#D8EFDF]' 
+                        : 'bg-red-50 text-[#D94A43] border-red-200'
                     }`}>
                       {member.isActive ? 'Active' : 'Deactivated'}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-right">
+                  <td className="py-3 px-3.5 text-right">
                     {member.role !== 'owner' && (
                       <button
                         onClick={() => handleToggleStatus(member)}
-                        className={`px-2 py-1 rounded text-[10px] font-bold uppercase border ${
+                        className={`px-3 py-1 rounded-lg text-[11px] font-bold uppercase border transition-colors ${
                           member.isActive
-                            ? 'text-earthRed border-earthRed-border hover:bg-earthRed-light'
-                            : 'text-forest-700 border-forest-600/30 hover:bg-forest-100'
+                            ? 'text-[#D94A43] border-red-200 hover:bg-red-50'
+                            : 'text-[#078F36] border-[#D8EFDF] hover:bg-[#F0F8F3]'
                         }`}
                       >
                         {member.isActive ? 'Deactivate' : 'Activate'}
@@ -161,51 +172,51 @@ export const StaffPage: React.FC = () => {
 
       {/* Add Staff Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded border border-surfaceBorder shadow-xl w-full max-w-sm text-charcoal-900 p-4">
-            <h3 className="font-bold text-xs text-forest-900 mb-3">Add Staff Member</h3>
-            <form onSubmit={handleCreateStaff} className="space-y-3 text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4">
+          <div className="bg-white rounded-2xl border border-[#E7EBE8] shadow-2xl w-full max-w-sm text-[#171B18] p-5">
+            <h3 className="font-extrabold text-sm text-[#171B18] mb-3">Add Staff Member</h3>
+            <form onSubmit={handleCreateStaff} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold mb-1">Full Name *</label>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none"
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">Login Email *</label>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Login Email *</label>
                 <input
                   type="email"
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="staff@restaurant.com"
-                  className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none"
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">Phone Number (Optional)</label>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Phone Number (Optional)</label>
                 <input
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="+91 98765 00000"
-                  className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none font-mono"
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36] font-mono"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">Assigned Role</label>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Assigned Role</label>
                 <select
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value as any })}
-                  className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none capitalize"
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36] bg-white capitalize"
                 >
                   <option value="cashier">Cashier (POS & Billing)</option>
                   <option value="kitchen">Kitchen Staff (Kitchen Display Board)</option>
@@ -213,28 +224,28 @@ export const StaffPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">Initial Password *</label>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Initial Password *</label>
                 <input
                   type="password"
                   required
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   placeholder="Minimum 6 characters"
-                  className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none"
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36]"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-surfaceBorder">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#E7EBE8]">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3 py-1.5 border border-surfaceBorder rounded"
+                  className="px-4 py-2 border border-[#E7EBE8] rounded-xl text-xs font-bold text-[#59615B] hover:text-[#171B18]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-forest-800 hover:bg-forest-900 text-white rounded font-medium"
+                  className="px-5 py-2 bg-[#078F36] hover:bg-[#087A32] text-white rounded-xl text-xs font-bold shadow-md shadow-[#078F36]/20 transition-all"
                 >
                   Create Account
                 </button>

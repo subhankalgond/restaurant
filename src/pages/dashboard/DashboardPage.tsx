@@ -11,6 +11,7 @@ interface DashboardPageProps {
 export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   const { currentRestaurant, currentUser } = useAuth();
   const restId = currentRestaurant?.id || '';
+  const currency = currentRestaurant?.currencySymbol || '₹';
 
   const caller = {
     restaurantId: restId,
@@ -97,19 +98,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
     .slice(0, 5);
 
   return (
-    <div className="flex-1 p-4 md:p-6 max-w-6xl mx-auto w-full space-y-6">
+    <div className="flex-1 p-4 md:p-6 max-w-6xl mx-auto w-full space-y-6 bg-[#F5F6F5] text-[#171B18]">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-surfaceBorder gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E7EBE8] gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-charcoal-900 tracking-tight">Restaurant Dashboard</h1>
-          <p className="text-xs text-charcoal-500 mt-0.5">
-            Operational summary for <span className="font-semibold text-forest-800">{currentRestaurant?.name}</span>
+          <h1 className="text-xl md:text-2xl font-extrabold text-[#171B18] tracking-tight">Restaurant Dashboard</h1>
+          <p className="text-xs text-[#59615B] mt-0.5 font-medium">
+            Operational summary for <span className="font-bold text-[#078F36]">{currentRestaurant?.name}</span>
           </p>
         </div>
 
         <button
           onClick={() => onNavigate('pos')}
-          className="flex items-center gap-1.5 bg-forest-800 hover:bg-forest-900 text-white px-4 py-2 rounded text-xs font-bold shadow-xs transition-colors self-start"
+          className="flex items-center gap-1.5 bg-[#078F36] hover:bg-[#087A32] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-[#078F36]/20 transition-all self-start"
         >
           <span>Open POS Billing &rarr;</span>
         </button>
@@ -117,14 +118,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
       {orders.length === 0 ? (
         /* Empty State */
-        <div className="bg-white border border-surfaceBorder rounded p-8 text-center text-xs space-y-2">
-          <h3 className="font-bold text-sm text-charcoal-800">No Sales Recorded Yet</h3>
-          <p className="text-charcoal-500 max-w-sm mx-auto">
+        <div className="bg-white border border-[#E7EBE8] rounded-2xl p-8 text-center text-xs space-y-2 shadow-sm">
+          <h3 className="font-extrabold text-sm text-[#171B18]">No Sales Recorded Yet</h3>
+          <p className="text-[#59615B] max-w-sm mx-auto font-medium">
             Sales, order metrics and revenue breakdowns will automatically compute as soon as your cashier creates the first bill.
           </p>
           <button
             onClick={() => onNavigate('pos')}
-            className="mt-3 px-4 py-1.5 bg-forest-800 text-white rounded font-bold"
+            className="mt-3 px-5 py-2 bg-[#078F36] hover:bg-[#087A32] text-white rounded-xl font-bold transition-colors"
           >
             Create First Order in POS
           </button>
@@ -133,69 +134,69 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         <>
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-              <span className="text-[11px] font-semibold text-charcoal-500 block uppercase">Today's Sales</span>
-              <span className="text-xl font-bold text-forest-900 font-mono mt-1 block">₹{todaySales}</span>
-              <span className="text-[10px] text-charcoal-500 mt-0.5 block">{todayOrders.length} bills settled</span>
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-3.5 shadow-sm">
+              <span className="text-[10px] font-bold text-[#59615B] block uppercase tracking-wider">Today's Sales</span>
+              <span className="text-xl font-extrabold text-[#078F36] font-mono mt-1 block">{currency}{todaySales}</span>
+              <span className="text-[10px] text-[#777F79] font-medium mt-0.5 block">{todayOrders.length} bills settled</span>
             </div>
 
-            <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-              <span className="text-[11px] font-semibold text-charcoal-500 block uppercase">Today's Orders</span>
-              <span className="text-xl font-bold text-charcoal-900 font-mono mt-1 block">{todayOrders.length}</span>
-              <span className="text-[10px] text-charcoal-500 mt-0.5 block">Total tickets</span>
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-3.5 shadow-sm">
+              <span className="text-[10px] font-bold text-[#59615B] block uppercase tracking-wider">Today's Orders</span>
+              <span className="text-xl font-extrabold text-[#171B18] font-mono mt-1 block">{todayOrders.length}</span>
+              <span className="text-[10px] text-[#777F79] font-medium mt-0.5 block">Total tickets</span>
             </div>
 
-            <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-              <span className="text-[11px] font-semibold text-charcoal-500 block uppercase">Average Bill</span>
-              <span className="text-xl font-bold text-charcoal-900 font-mono mt-1 block">₹{avgBill}</span>
-              <span className="text-[10px] text-charcoal-500 mt-0.5 block">Per order average</span>
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-3.5 shadow-sm">
+              <span className="text-[10px] font-bold text-[#59615B] block uppercase tracking-wider">Average Bill</span>
+              <span className="text-xl font-extrabold text-[#171B18] font-mono mt-1 block">{currency}{avgBill}</span>
+              <span className="text-[10px] text-[#777F79] font-medium mt-0.5 block">Per order average</span>
             </div>
 
-            <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-              <span className="text-[11px] font-semibold text-charcoal-500 block uppercase">Pending Orders</span>
-              <span className="text-xl font-bold text-earthAmber font-mono mt-1 block">{pendingOrders.length}</span>
-              <span className="text-[10px] text-charcoal-500 mt-0.5 block">In kitchen</span>
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-3.5 shadow-sm">
+              <span className="text-[10px] font-bold text-[#59615B] block uppercase tracking-wider">Pending Orders</span>
+              <span className="text-xl font-extrabold text-[#F5BD3D] font-mono mt-1 block">{pendingOrders.length}</span>
+              <span className="text-[10px] text-[#777F79] font-medium mt-0.5 block">In kitchen</span>
             </div>
 
-            <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-              <span className="text-[11px] font-semibold text-charcoal-500 block uppercase">Completed</span>
-              <span className="text-xl font-bold text-forest-700 font-mono mt-1 block">{completedOrders.length}</span>
-              <span className="text-[10px] text-charcoal-500 mt-0.5 block">Fulfilled orders</span>
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-3.5 shadow-sm">
+              <span className="text-[10px] font-bold text-[#59615B] block uppercase tracking-wider">Completed</span>
+              <span className="text-xl font-extrabold text-[#078F36] font-mono mt-1 block">{completedOrders.length}</span>
+              <span className="text-[10px] text-[#777F79] font-medium mt-0.5 block">Fulfilled orders</span>
             </div>
 
-            <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-              <span className="text-[11px] font-semibold text-charcoal-500 block uppercase">Cancelled</span>
-              <span className="text-xl font-bold text-earthRed font-mono mt-1 block">{cancelledOrders.length}</span>
-              <span className="text-[10px] text-charcoal-500 mt-0.5 block">Voided bills</span>
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-3.5 shadow-sm">
+              <span className="text-[10px] font-bold text-[#59615B] block uppercase tracking-wider">Cancelled</span>
+              <span className="text-xl font-extrabold text-[#D94A43] font-mono mt-1 block">{cancelledOrders.length}</span>
+              <span className="text-[10px] text-[#777F79] font-medium mt-0.5 block">Voided bills</span>
             </div>
           </div>
 
           {/* Sales Comparison & Payment Breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Sales Chart Card */}
-            <div className="lg:col-span-2 bg-white border border-surfaceBorder rounded p-4 shadow-xs">
-              <div className="flex items-center justify-between pb-3 border-b border-surfaceBorder">
+            <div className="lg:col-span-2 bg-white border border-[#E7EBE8] rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E7EBE8]">
                 <div>
-                  <h2 className="font-bold text-sm text-forest-900">Sales Overview</h2>
-                  <span className="text-xs text-charcoal-500">Real transaction revenue</span>
+                  <h2 className="font-extrabold text-sm text-[#171B18]">Sales Overview</h2>
+                  <span className="text-xs text-[#59615B] font-medium">Real transaction revenue</span>
                 </div>
 
-                <div className="flex items-center bg-surface p-0.5 rounded border border-surfaceBorder text-xs">
+                <div className="flex items-center bg-[#F5F6F5] p-1 rounded-xl border border-[#E7EBE8] text-xs font-semibold">
                   <button
                     onClick={() => setChartView('daily')}
-                    className={`px-2.5 py-1 rounded font-medium ${chartView === 'daily' ? 'bg-forest-800 text-white' : 'text-charcoal-700'}`}
+                    className={`px-3 py-1 rounded-lg transition-colors ${chartView === 'daily' ? 'bg-[#078F36] text-white font-bold' : 'text-[#777F79] hover:text-[#171B18]'}`}
                   >
                     Daily
                   </button>
                   <button
                     onClick={() => setChartView('weekly')}
-                    className={`px-2.5 py-1 rounded font-medium ${chartView === 'weekly' ? 'bg-forest-800 text-white' : 'text-charcoal-700'}`}
+                    className={`px-3 py-1 rounded-lg transition-colors ${chartView === 'weekly' ? 'bg-[#078F36] text-white font-bold' : 'text-[#777F79] hover:text-[#171B18]'}`}
                   >
                     Weekly
                   </button>
                   <button
                     onClick={() => setChartView('monthly')}
-                    className={`px-2.5 py-1 rounded font-medium ${chartView === 'monthly' ? 'bg-forest-800 text-white' : 'text-charcoal-700'}`}
+                    className={`px-3 py-1 rounded-lg transition-colors ${chartView === 'monthly' ? 'bg-[#078F36] text-white font-bold' : 'text-[#777F79] hover:text-[#171B18]'}`}
                   >
                     Monthly
                   </button>
@@ -204,23 +205,23 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
 
               <div className="mt-4">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-forest-900 font-mono">
-                    ₹{chartView === 'daily' ? todaySales : chartView === 'weekly' ? weeklySales : monthlySales}
+                  <span className="text-2xl font-extrabold text-[#171B18] font-mono">
+                    {currency}{chartView === 'daily' ? todaySales : chartView === 'weekly' ? weeklySales : monthlySales}
                   </span>
-                  <span className="text-xs text-charcoal-500">settled revenue</span>
+                  <span className="text-xs text-[#59615B] font-medium">settled revenue</span>
                 </div>
 
-                <div className="mt-4 space-y-2 text-xs">
+                <div className="mt-4 space-y-3 text-xs">
                   <div>
-                    <div className="flex justify-between text-charcoal-700 mb-1">
+                    <div className="flex justify-between text-[#171B18] mb-1 font-semibold">
                       <span>Dine-In Revenue:</span>
-                      <span className="font-mono font-semibold">
-                        ₹{orders.filter(o => o.orderType === 'dine_in' && o.orderStatus !== 'cancelled').reduce((acc, o) => acc + o.finalTotal, 0)}
+                      <span className="font-mono font-bold">
+                        {currency}{orders.filter(o => o.orderType === 'dine_in' && o.orderStatus !== 'cancelled').reduce((acc, o) => acc + o.finalTotal, 0)}
                       </span>
                     </div>
-                    <div className="w-full bg-surface h-2 rounded overflow-hidden">
+                    <div className="w-full bg-[#F5F6F5] h-2.5 rounded-full overflow-hidden">
                       <div
-                        className="bg-forest-700 h-2 rounded"
+                        className="bg-[#078F36] h-2.5 rounded-full"
                         style={{
                           width: totalBreakdown > 0 ? `${(orders.filter(o => o.orderType === 'dine_in' && o.orderStatus !== 'cancelled').reduce((acc, o) => acc + o.finalTotal, 0) / totalBreakdown) * 100}%` : '0%'
                         }}
@@ -229,15 +230,15 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                   </div>
 
                   <div>
-                    <div className="flex justify-between text-charcoal-700 mb-1">
+                    <div className="flex justify-between text-[#171B18] mb-1 font-semibold">
                       <span>Takeaway & Delivery:</span>
-                      <span className="font-mono font-semibold">
-                        ₹{orders.filter(o => (o.orderType === 'takeaway' || o.orderType === 'delivery') && o.orderStatus !== 'cancelled').reduce((acc, o) => acc + o.finalTotal, 0)}
+                      <span className="font-mono font-bold">
+                        {currency}{orders.filter(o => (o.orderType === 'takeaway' || o.orderType === 'delivery') && o.orderStatus !== 'cancelled').reduce((acc, o) => acc + o.finalTotal, 0)}
                       </span>
                     </div>
-                    <div className="w-full bg-surface h-2 rounded overflow-hidden">
+                    <div className="w-full bg-[#F5F6F5] h-2.5 rounded-full overflow-hidden">
                       <div
-                        className="bg-earthAmber h-2 rounded"
+                        className="bg-[#F5BD3D] h-2.5 rounded-full"
                         style={{
                           width: totalBreakdown > 0 ? `${(orders.filter(o => (o.orderType === 'takeaway' || o.orderType === 'delivery') && o.orderStatus !== 'cancelled').reduce((acc, o) => acc + o.finalTotal, 0) / totalBreakdown) * 100}%` : '0%'
                         }}
@@ -249,40 +250,40 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Payment Breakdown */}
-            <div className="bg-white border border-surfaceBorder rounded p-4 shadow-xs text-xs">
-              <div className="pb-3 border-b border-surfaceBorder">
-                <h2 className="font-bold text-sm text-forest-900">Payment Breakdown</h2>
-                <span className="text-charcoal-500">Settled tender methods</span>
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-5 shadow-sm text-xs">
+              <div className="pb-3 border-b border-[#E7EBE8]">
+                <h2 className="font-extrabold text-sm text-[#171B18]">Payment Breakdown</h2>
+                <span className="text-xs text-[#59615B] font-medium">Settled tender methods</span>
               </div>
 
               <div className="mt-4 space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#171B18]">
                   <span className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-forest-700"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#078F36]"></span>
                     <span>UPI / QR</span>
                   </span>
-                  <span className="font-mono font-bold">₹{paymentBreakdown.upi}</span>
+                  <span className="font-mono font-bold">{currency}{paymentBreakdown.upi}</span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#171B18]">
                   <span className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-earthAmber"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#F5BD3D]"></span>
                     <span>Cash</span>
                   </span>
-                  <span className="font-mono font-bold">₹{paymentBreakdown.cash}</span>
+                  <span className="font-mono font-bold">{currency}{paymentBreakdown.cash}</span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#171B18]">
                   <span className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                     <span>Card</span>
                   </span>
-                  <span className="font-mono font-bold">₹{paymentBreakdown.card}</span>
+                  <span className="font-mono font-bold">{currency}{paymentBreakdown.card}</span>
                 </div>
 
-                <div className="pt-3 border-t border-surfaceBorder flex justify-between font-bold text-charcoal-900">
+                <div className="pt-3 border-t border-[#E7EBE8] flex justify-between font-extrabold text-[#171B18]">
                   <span>Total Settled:</span>
-                  <span className="font-mono text-sm">₹{totalBreakdown}</span>
+                  <span className="font-mono text-sm text-[#078F36]">{currency}{totalBreakdown}</span>
                 </div>
               </div>
             </div>
@@ -291,35 +292,35 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
           {/* Low Stock & Top Selling Products */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Low Stock Alerts */}
-            <div className="bg-white border border-surfaceBorder rounded p-4 shadow-xs text-xs">
-              <div className="flex items-center justify-between pb-3 border-b border-surfaceBorder">
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-5 shadow-sm text-xs">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E7EBE8]">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-earthAmber"></span>
-                  <h2 className="font-bold text-sm text-forest-900">Low Stock Alerts</h2>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#F5BD3D]"></span>
+                  <h2 className="font-extrabold text-sm text-[#171B18]">Low Stock Alerts</h2>
                 </div>
                 <button
                   onClick={() => onNavigate('inventory')}
-                  className="text-forest-700 font-semibold hover:underline"
+                  className="text-[#078F36] font-bold hover:underline"
                 >
                   Manage Inventory &rarr;
                 </button>
               </div>
 
-              <div className="mt-3 divide-y divide-surfaceBorder">
+              <div className="mt-3 divide-y divide-[#E7EBE8]">
                 {lowStockItems.length === 0 ? (
-                  <p className="text-charcoal-500 italic py-3 text-center">All stock levels are adequate.</p>
+                  <p className="text-[#59615B] font-medium italic py-3 text-center">All stock levels are adequate.</p>
                 ) : (
                   lowStockItems.map(item => (
                     <div key={item.id} className="py-2.5 flex items-center justify-between">
                       <div>
-                        <span className="font-semibold text-charcoal-900">{item.name}</span>
-                        <div className="text-[11px] text-charcoal-500">
-                          Current: <span className="text-earthRed font-bold font-mono">{item.currentStock} {item.unit}</span> (Min: {item.minimumStock} {item.unit})
+                        <span className="font-bold text-xs text-[#171B18]">{item.name}</span>
+                        <div className="text-[11px] text-[#59615B] font-medium">
+                          Current: <span className="text-[#D94A43] font-bold font-mono">{item.currentStock} {item.unit}</span> (Min: {item.minimumStock} {item.unit})
                         </div>
                       </div>
                       <button
                         onClick={() => onNavigate('inventory')}
-                        className="px-2.5 py-1 bg-earthAmber-light text-earthAmber border border-earthAmber-border rounded text-[11px] font-semibold"
+                        className="px-3 py-1 bg-[#FEF9EE] text-[#F5BD3D] border border-[#FDE68A] rounded-lg text-[11px] font-bold"
                       >
                         Add Stock
                       </button>
@@ -330,30 +331,30 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Top Selling Products */}
-            <div className="bg-white border border-surfaceBorder rounded p-4 shadow-xs text-xs">
-              <div className="flex items-center justify-between pb-3 border-b border-surfaceBorder">
-                <h2 className="font-bold text-sm text-forest-900">Top Selling Products</h2>
+            <div className="bg-white border border-[#E7EBE8] rounded-2xl p-5 shadow-sm text-xs">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E7EBE8]">
+                <h2 className="font-extrabold text-sm text-[#171B18]">Top Selling Products</h2>
                 <button
                   onClick={() => onNavigate('reports')}
-                  className="text-forest-700 font-semibold hover:underline"
+                  className="text-[#078F36] font-bold hover:underline"
                 >
                   View Reports &rarr;
                 </button>
               </div>
 
-              <div className="mt-3 divide-y divide-surfaceBorder">
+              <div className="mt-3 divide-y divide-[#E7EBE8]">
                 {topSellingProducts.length === 0 ? (
-                  <p className="text-charcoal-500 italic py-3 text-center">No sales yet.</p>
+                  <p className="text-[#59615B] font-medium italic py-3 text-center">No sales yet.</p>
                 ) : (
                   topSellingProducts.map((p, idx) => (
                     <div key={idx} className="py-2.5 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="w-4 text-center font-bold text-charcoal-400 font-mono">#{idx + 1}</span>
-                        <span className="font-semibold text-charcoal-900">{p.name}</span>
+                        <span className="w-5 text-center font-bold text-[#777F79] font-mono">#{idx + 1}</span>
+                        <span className="font-bold text-[#171B18] text-xs">{p.name}</span>
                       </div>
                       <div className="text-right">
-                        <span className="font-bold text-charcoal-900 font-mono">{p.qty} Sold</span>
-                        <span className="text-[11px] text-charcoal-500 block">₹{p.sales}</span>
+                        <span className="font-extrabold text-[#171B18] font-mono">{p.qty} Sold</span>
+                        <span className="text-[11px] text-[#59615B] font-semibold block">{currency}{p.sales}</span>
                       </div>
                     </div>
                   ))

@@ -8,6 +8,7 @@ export const ReportsPage: React.FC = () => {
   const { currentRestaurant, currentUser } = useAuth();
   const { showToast } = useToast();
   const restId = currentRestaurant?.id || '';
+  const currency = currentRestaurant?.currencySymbol || '₹';
 
   const caller = {
     restaurantId: restId,
@@ -105,19 +106,19 @@ export const ReportsPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-4 md:p-6 max-w-6xl mx-auto w-full">
+    <div className="flex-1 flex flex-col p-4 md:p-6 max-w-6xl mx-auto w-full bg-[#F5F6F5] text-[#171B18]">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-surfaceBorder gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E7EBE8] gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-charcoal-900 tracking-tight">Sales & Tax Reports</h1>
-          <p className="text-xs text-charcoal-500 mt-0.5">Audited financial sales, GST ledger, product volumes and voided bills</p>
+          <h1 className="text-xl md:text-2xl font-extrabold text-[#171B18] tracking-tight">Sales & Tax Reports</h1>
+          <p className="text-xs text-[#59615B] font-medium mt-0.5">Audited financial sales, GST ledger, product volumes and voided bills</p>
         </div>
 
         <div className="flex items-center gap-2">
           <select
             value={timeframe}
             onChange={(e) => setTimeframe(e.target.value as any)}
-            className="bg-white border border-surfaceBorder rounded px-2.5 py-1.5 text-xs font-semibold text-charcoal-900"
+            className="bg-white border border-[#E7EBE8] rounded-xl px-3 py-2 text-xs font-bold text-[#171B18] shadow-2xs focus:outline-none"
           >
             <option value="all">All Historical Records</option>
             <option value="today">Today's Transactions</option>
@@ -127,7 +128,7 @@ export const ReportsPage: React.FC = () => {
 
           <button
             onClick={handleExportCSV}
-            className="bg-forest-800 hover:bg-forest-900 text-white px-3.5 py-1.5 rounded text-xs font-semibold shadow-xs"
+            className="bg-[#078F36] hover:bg-[#087A32] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-[#078F36]/20 transition-all"
           >
             Export CSV
           </button>
@@ -135,35 +136,43 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1.5 mt-4 border-b border-surfaceBorder pb-2 text-xs overflow-x-auto">
+      <div className="flex items-center gap-2 mt-4 pb-1 text-xs overflow-x-auto">
         <button
           onClick={() => setActiveTab('sales')}
-          className={`px-3 py-1.5 rounded font-bold transition-colors ${
-            activeTab === 'sales' ? 'bg-forest-800 text-white' : 'bg-surface text-charcoal-700 hover:bg-white'
+          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${
+            activeTab === 'sales'
+              ? 'bg-[#078F36] text-white shadow-2xs'
+              : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
           }`}
         >
           Sales Summary
         </button>
         <button
           onClick={() => setActiveTab('products')}
-          className={`px-3 py-1.5 rounded font-bold transition-colors ${
-            activeTab === 'products' ? 'bg-forest-800 text-white' : 'bg-surface text-charcoal-700 hover:bg-white'
+          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${
+            activeTab === 'products'
+              ? 'bg-[#078F36] text-white shadow-2xs'
+              : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
           }`}
         >
           Product Breakdown
         </button>
         <button
           onClick={() => setActiveTab('tax')}
-          className={`px-3 py-1.5 rounded font-bold transition-colors ${
-            activeTab === 'tax' ? 'bg-forest-800 text-white' : 'bg-surface text-charcoal-700 hover:bg-white'
+          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${
+            activeTab === 'tax'
+              ? 'bg-[#078F36] text-white shadow-2xs'
+              : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
           }`}
         >
           GST Tax Report
         </button>
         <button
           onClick={() => setActiveTab('cancelled')}
-          className={`px-3 py-1.5 rounded font-bold transition-colors ${
-            activeTab === 'cancelled' ? 'bg-forest-800 text-white' : 'bg-surface text-charcoal-700 hover:bg-white'
+          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${
+            activeTab === 'cancelled'
+              ? 'bg-[#078F36] text-white shadow-2xs'
+              : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
           }`}
         >
           Cancelled Bills ({cancelledOrders.length})
@@ -171,54 +180,54 @@ export const ReportsPage: React.FC = () => {
       </div>
 
       {/* KPI Metric Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-xs">
-        <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-          <span className="text-[11px] text-charcoal-500 uppercase font-semibold">Gross Sales</span>
-          <span className="text-lg font-bold text-forest-900 font-mono block mt-1">₹{totalGross}</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-4 text-xs">
+        <div className="bg-white border border-[#E7EBE8] rounded-2xl p-4 shadow-sm">
+          <span className="text-[10px] text-[#59615B] uppercase font-extrabold tracking-wider">Gross Sales</span>
+          <span className="text-xl font-extrabold text-[#078F36] font-mono block mt-1">{currency}{totalGross}</span>
         </div>
-        <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-          <span className="text-[11px] text-charcoal-500 uppercase font-semibold">Subtotal</span>
-          <span className="text-lg font-bold text-charcoal-900 font-mono block mt-1">₹{totalSubtotal.toFixed(0)}</span>
+        <div className="bg-white border border-[#E7EBE8] rounded-2xl p-4 shadow-sm">
+          <span className="text-[10px] text-[#59615B] uppercase font-extrabold tracking-wider">Subtotal</span>
+          <span className="text-xl font-extrabold text-[#171B18] font-mono block mt-1">{currency}{totalSubtotal.toFixed(0)}</span>
         </div>
-        <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-          <span className="text-[11px] text-charcoal-500 uppercase font-semibold">GST Tax</span>
-          <span className="text-lg font-bold text-charcoal-900 font-mono block mt-1">₹{totalTax.toFixed(2)}</span>
+        <div className="bg-white border border-[#E7EBE8] rounded-2xl p-4 shadow-sm">
+          <span className="text-[10px] text-[#59615B] uppercase font-extrabold tracking-wider">GST Tax</span>
+          <span className="text-xl font-extrabold text-[#171B18] font-mono block mt-1">{currency}{totalTax.toFixed(2)}</span>
         </div>
-        <div className="bg-white border border-surfaceBorder rounded p-3 shadow-xs">
-          <span className="text-[11px] text-charcoal-500 uppercase font-semibold">Bills Settled</span>
-          <span className="text-lg font-bold text-charcoal-900 font-mono block mt-1">{validOrders.length}</span>
+        <div className="bg-white border border-[#E7EBE8] rounded-2xl p-4 shadow-sm">
+          <span className="text-[10px] text-[#59615B] uppercase font-extrabold tracking-wider">Bills Settled</span>
+          <span className="text-xl font-extrabold text-[#171B18] font-mono block mt-1">{validOrders.length}</span>
         </div>
       </div>
 
       {/* Report Tables */}
-      <div className="bg-white border border-surfaceBorder rounded shadow-xs mt-4 overflow-hidden">
+      <div className="bg-white border border-[#E7EBE8] rounded-2xl shadow-sm mt-4 overflow-hidden">
         <div className="overflow-x-auto">
           {activeTab === 'sales' && (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-surface border-b border-surfaceBorder text-charcoal-700 font-semibold select-none">
-                  <th className="py-2.5 px-3">Order / Inv #</th>
-                  <th className="py-2.5 px-3">Date</th>
-                  <th className="py-2.5 px-3">Type</th>
-                  <th className="py-2.5 px-3 text-right">Subtotal</th>
-                  <th className="py-2.5 px-3 text-right">Tax</th>
-                  <th className="py-2.5 px-3 text-right">Total</th>
-                  <th className="py-2.5 px-3">Method</th>
+                <tr className="bg-[#F5F6F5] border-b border-[#E7EBE8] text-[#171B18] font-extrabold select-none">
+                  <th className="py-3 px-3.5">Order / Inv #</th>
+                  <th className="py-3 px-3.5">Date</th>
+                  <th className="py-3 px-3.5">Type</th>
+                  <th className="py-3 px-3.5 text-right">Subtotal</th>
+                  <th className="py-3 px-3.5 text-right">Tax</th>
+                  <th className="py-3 px-3.5 text-right">Total</th>
+                  <th className="py-3 px-3.5">Method</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surfaceBorder">
+              <tbody className="divide-y divide-[#E7EBE8]">
                 {validOrders.map(o => (
-                  <tr key={o.id} className="hover:bg-neutralBg/70">
-                    <td className="py-2.5 px-3 font-mono font-bold text-charcoal-900">
+                  <tr key={o.id} className="hover:bg-[#F0F8F3]/60 transition-colors">
+                    <td className="py-3 px-3.5 font-mono font-bold text-[#171B18]">
                       {o.orderNumber}
-                      <span className="text-[10px] text-charcoal-500 block font-normal">{o.invoiceNumber}</span>
+                      <span className="text-[10px] text-[#59615B] block font-normal">{o.invoiceNumber}</span>
                     </td>
-                    <td className="py-2.5 px-3 text-charcoal-600 font-mono">{new Date(o.createdAt).toLocaleDateString()}</td>
-                    <td className="py-2.5 px-3 capitalize font-semibold">{o.orderType.replace('_', ' ')}</td>
-                    <td className="py-2.5 px-3 text-right font-mono">₹{o.subtotal}</td>
-                    <td className="py-2.5 px-3 text-right font-mono">₹{o.taxAmount.toFixed(2)}</td>
-                    <td className="py-2.5 px-3 text-right font-mono font-bold text-forest-900">₹{o.finalTotal}</td>
-                    <td className="py-2.5 px-3 uppercase text-[10px] font-bold text-charcoal-700">{o.paymentMethod || 'CASH'}</td>
+                    <td className="py-3 px-3.5 text-[#171B18] font-bold font-mono">{new Date(o.createdAt).toLocaleDateString()}</td>
+                    <td className="py-3 px-3.5 capitalize font-bold text-[#171B18]">{o.orderType.replace('_', ' ')}</td>
+                    <td className="py-3 px-3.5 text-right font-mono font-bold text-[#171B18]">{currency}{o.subtotal}</td>
+                    <td className="py-3 px-3.5 text-right font-mono font-bold text-[#171B18]">{currency}{o.taxAmount.toFixed(2)}</td>
+                    <td className="py-3 px-3.5 text-right font-mono font-extrabold text-[#078F36]">{currency}{o.finalTotal}</td>
+                    <td className="py-3 px-3.5 uppercase text-[10px] font-extrabold text-[#171B18]">{o.paymentMethod || 'CASH'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -228,22 +237,22 @@ export const ReportsPage: React.FC = () => {
           {activeTab === 'products' && (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-surface border-b border-surfaceBorder text-charcoal-700 font-semibold select-none">
-                  <th className="py-2.5 px-3">Menu Product</th>
-                  <th className="py-2.5 px-3 text-right">Units Sold</th>
-                  <th className="py-2.5 px-3 text-right">Gross Sales</th>
-                  <th className="py-2.5 px-3 text-right">Share %</th>
+                <tr className="bg-[#F5F6F5] border-b border-[#E7EBE8] text-[#171B18] font-extrabold select-none">
+                  <th className="py-3 px-3.5">Menu Product</th>
+                  <th className="py-3 px-3.5 text-right">Units Sold</th>
+                  <th className="py-3 px-3.5 text-right">Gross Sales</th>
+                  <th className="py-3 px-3.5 text-right">Share %</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surfaceBorder">
+              <tbody className="divide-y divide-[#E7EBE8]">
                 {productReports.map((p, idx) => {
                   const share = totalGross > 0 ? ((p.revenue / totalGross) * 100).toFixed(1) : '0';
                   return (
-                    <tr key={idx} className="hover:bg-neutralBg/70">
-                      <td className="py-2.5 px-3 font-semibold text-charcoal-900">{p.name}</td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold">{p.qty}</td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-forest-900">₹{p.revenue}</td>
-                      <td className="py-2.5 px-3 text-right font-mono text-charcoal-600">{share}%</td>
+                    <tr key={idx} className="hover:bg-[#F0F8F3]/60 transition-colors">
+                      <td className="py-3 px-3.5 font-bold text-[#171B18]">{p.name}</td>
+                      <td className="py-3 px-3.5 text-right font-mono font-bold text-[#171B18]">{p.qty}</td>
+                      <td className="py-3 px-3.5 text-right font-mono font-extrabold text-[#078F36]">{currency}{p.revenue}</td>
+                      <td className="py-3 px-3.5 text-right font-mono font-bold text-[#59615B]">{share}%</td>
                     </tr>
                   );
                 })}
@@ -254,24 +263,24 @@ export const ReportsPage: React.FC = () => {
           {activeTab === 'tax' && (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-surface border-b border-surfaceBorder text-charcoal-700 font-semibold select-none">
-                  <th className="py-2.5 px-3">Invoice Number</th>
-                  <th className="py-2.5 px-3">Date</th>
-                  <th className="py-2.5 px-3 text-right">Taxable Amount</th>
-                  <th className="py-2.5 px-3 text-right">GST Rate</th>
-                  <th className="py-2.5 px-3 text-right">GST Collected</th>
-                  <th className="py-2.5 px-3 text-right">Total Invoice</th>
+                <tr className="bg-[#F5F6F5] border-b border-[#E7EBE8] text-[#171B18] font-extrabold select-none">
+                  <th className="py-3 px-3.5">Invoice #</th>
+                  <th className="py-3 px-3.5">Date</th>
+                  <th className="py-3 px-3.5 text-right">Taxable Value</th>
+                  <th className="py-3 px-3.5 text-right">GST Rate</th>
+                  <th className="py-3 px-3.5 text-right">GST Output Tax</th>
+                  <th className="py-3 px-3.5 text-right">Invoice Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surfaceBorder">
+              <tbody className="divide-y divide-[#E7EBE8]">
                 {validOrders.map(o => (
-                  <tr key={o.id} className="hover:bg-neutralBg/70">
-                    <td className="py-2.5 px-3 font-mono font-bold text-charcoal-900">{o.invoiceNumber}</td>
-                    <td className="py-2.5 px-3 text-charcoal-600 font-mono">{new Date(o.createdAt).toLocaleDateString()}</td>
-                    <td className="py-2.5 px-3 text-right font-mono">₹{(o.subtotal - o.discountAmount).toFixed(2)}</td>
-                    <td className="py-2.5 px-3 text-right font-mono">{o.taxRatePercent}%</td>
-                    <td className="py-2.5 px-3 text-right font-mono font-bold text-charcoal-900">₹{o.taxAmount.toFixed(2)}</td>
-                    <td className="py-2.5 px-3 text-right font-mono font-bold text-forest-900">₹{o.finalTotal}</td>
+                  <tr key={o.id} className="hover:bg-[#F0F8F3]/60 transition-colors">
+                    <td className="py-3 px-3.5 font-mono font-bold text-[#171B18]">{o.invoiceNumber || o.orderNumber}</td>
+                    <td className="py-3 px-3.5 text-[#171B18] font-mono font-bold">{new Date(o.createdAt).toLocaleDateString()}</td>
+                    <td className="py-3 px-3.5 text-right font-mono font-bold text-[#171B18]">{currency}{(o.subtotal - o.discountAmount).toFixed(2)}</td>
+                    <td className="py-3 px-3.5 text-right font-mono font-bold text-[#59615B]">{o.taxRatePercent}%</td>
+                    <td className="py-3 px-3.5 text-right font-mono font-extrabold text-[#171B18]">{currency}{o.taxAmount.toFixed(2)}</td>
+                    <td className="py-3 px-3.5 text-right font-mono font-extrabold text-[#078F36]">{currency}{o.finalTotal}</td>
                   </tr>
                 ))}
               </tbody>
@@ -281,29 +290,32 @@ export const ReportsPage: React.FC = () => {
           {activeTab === 'cancelled' && (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-surface border-b border-surfaceBorder text-charcoal-700 font-semibold select-none">
-                  <th className="py-2.5 px-3">Order / Inv #</th>
-                  <th className="py-2.5 px-3">Date</th>
-                  <th className="py-2.5 px-3 text-right">Voided Amount</th>
-                  <th className="py-2.5 px-3">Reason for Void / Cancellation</th>
-                  <th className="py-2.5 px-3">Cashier</th>
+                <tr className="bg-[#F5F6F5] border-b border-[#E7EBE8] text-[#171B18] font-extrabold select-none">
+                  <th className="py-3 px-3.5">Order / Inv #</th>
+                  <th className="py-3 px-3.5">Date & Time</th>
+                  <th className="py-3 px-3.5 text-right">Voided Amount</th>
+                  <th className="py-3 px-3.5">Audit Reason</th>
+                  <th className="py-3 px-3.5">Staff Cashier</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surfaceBorder">
+              <tbody className="divide-y divide-[#E7EBE8]">
                 {cancelledOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-6 text-center text-charcoal-500 italic">
-                      Zero bills cancelled. Excellent cashier billing integrity!
+                    <td colSpan={5} className="py-8 text-center text-[#59615B] font-medium">
+                      No voided or cancelled orders on file.
                     </td>
                   </tr>
                 ) : (
                   cancelledOrders.map(o => (
-                    <tr key={o.id} className="hover:bg-neutralBg/70">
-                      <td className="py-2.5 px-3 font-mono font-bold text-charcoal-900">{o.orderNumber} ({o.invoiceNumber})</td>
-                      <td className="py-2.5 px-3 text-charcoal-600 font-mono">{new Date(o.createdAt).toLocaleString()}</td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-earthRed">₹{o.finalTotal}</td>
-                      <td className="py-2.5 px-3 text-earthRed font-medium">{o.cancellationReason || 'Unspecified'}</td>
-                      <td className="py-2.5 px-3 text-charcoal-700">{o.cashierName}</td>
+                    <tr key={o.id} className="hover:bg-red-50/50 transition-colors">
+                      <td className="py-3 px-3.5 font-mono font-bold text-[#D94A43]">
+                        {o.orderNumber}
+                        <span className="text-[10px] text-[#59615B] block font-normal">{o.invoiceNumber}</span>
+                      </td>
+                      <td className="py-3 px-3.5 text-[#171B18] font-bold">{new Date(o.createdAt).toLocaleString()}</td>
+                      <td className="py-3 px-3.5 text-right font-mono font-extrabold text-[#D94A43]">{currency}{o.finalTotal}</td>
+                      <td className="py-3 px-3.5 text-[#171B18] font-medium italic">{o.cancellationReason || 'No reason provided'}</td>
+                      <td className="py-3 px-3.5 font-bold text-[#171B18]">{o.cashierName || 'Staff'}</td>
                     </tr>
                   ))
                 )}

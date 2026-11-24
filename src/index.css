@@ -10,15 +10,58 @@
   --soft-mint: #D8EFDF;
   --light-mint-bg: #F0F8F3;
   --text-primary: #171B18;
-  --text-secondary: #777F79;
+  --text-secondary: #59615B;
 }
 
 body {
   margin: 0;
-  background-color: #F5F6F5;
-  color: #171B18;
+  background-color: #F5F6F5 !important;
+  color: #171B18 !important;
   font-family: 'Plus Jakarta Sans', 'DM Sans', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure headings, labels, inputs and cards have high-contrast readable text */
+h1, h2, h3, h4, h5, h6 {
+  color: #171B18;
+}
+
+/* Global utility overrides to guarantee 100% visibility */
+.bg-surface {
+  background-color: #FFFFFF !important;
+  color: #171B18 !important;
+}
+
+.bg-neutralBg {
+  background-color: #F5F6F5 !important;
+}
+
+.border-surfaceBorder {
+  border-color: #E7EBE8 !important;
+}
+
+.text-charcoal-900 {
+  color: #171B18 !important;
+}
+
+.text-charcoal-800 {
+  color: #222723 !important;
+}
+
+.text-charcoal-700 {
+  color: #38403A !important;
+}
+
+.text-charcoal-600 {
+  color: #4C544E !important;
+}
+
+.text-charcoal-500 {
+  color: #59615B !important;
+}
+
+.text-charcoal-400 {
+  color: #777F79 !important;
 }
 
 /* Custom Clean Scrollbars */

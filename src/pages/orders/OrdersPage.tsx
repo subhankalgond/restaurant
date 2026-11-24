@@ -10,6 +10,7 @@ export const OrdersPage: React.FC = () => {
   const { currentRestaurant, currentUser } = useAuth();
   const { showToast } = useToast();
   const restId = currentRestaurant?.id || '';
+  const currency = currentRestaurant?.currencySymbol || '₹';
 
   const caller = {
     restaurantId: restId,
@@ -68,31 +69,31 @@ export const OrdersPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-4 md:p-6 max-w-6xl mx-auto w-full">
+    <div className="flex-1 flex flex-col p-4 md:p-6 max-w-6xl mx-auto w-full bg-[#F5F6F5] text-[#171B18]">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-surfaceBorder gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E7EBE8] gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-charcoal-900 tracking-tight">Order Management</h1>
-          <p className="text-xs text-charcoal-500 mt-0.5">Order audit feed, bill reprints, cancellation tracking and kitchen coordination</p>
+          <h1 className="text-xl md:text-2xl font-extrabold text-[#171B18] tracking-tight">Order Management</h1>
+          <p className="text-xs text-[#59615B] font-medium mt-0.5">Order audit feed, bill reprints, cancellation tracking and kitchen coordination</p>
         </div>
 
-        <span className="text-xs text-charcoal-700 font-semibold bg-surface px-3 py-1.5 rounded border border-surfaceBorder self-start">
+        <span className="text-xs text-[#171B18] font-bold bg-white px-3.5 py-1.5 rounded-xl border border-[#E7EBE8] shadow-2xs self-start">
           Total Orders: {orders.length}
         </span>
       </div>
 
       {/* Filter Strip */}
-      <div className="bg-white p-3 rounded border border-surfaceBorder shadow-xs mt-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="bg-white p-3.5 rounded-2xl border border-[#E7EBE8] shadow-sm mt-4 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="relative flex-1 min-w-[220px]">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-charcoal-500">
-            <SearchIcon className="w-3.5 h-3.5" />
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#777F79]">
+            <SearchIcon className="w-4 h-4 text-[#777F79]" />
           </span>
           <input
             type="text"
             placeholder="Search by Order #, Invoice #, or Guest..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-neutralBg border border-surfaceBorder rounded focus:border-forest-800 focus:outline-none"
+            className="w-full pl-9 pr-3 py-2 bg-[#F5F6F5] border border-[#E7EBE8] rounded-xl text-xs font-semibold text-[#171B18] placeholder-[#777F79] focus:outline-none focus:border-[#078F36]"
           />
         </div>
 
@@ -100,7 +101,7 @@ export const OrdersPage: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-neutralBg border border-surfaceBorder rounded px-2.5 py-1.5 focus:outline-none"
+            className="bg-[#F5F6F5] border border-[#E7EBE8] rounded-xl px-3 py-2 text-xs font-bold text-[#171B18] focus:outline-none focus:border-[#078F36]"
           >
             <option value="all">All Statuses</option>
             <option value="new">New</option>
@@ -113,7 +114,7 @@ export const OrdersPage: React.FC = () => {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-neutralBg border border-surfaceBorder rounded px-2.5 py-1.5 focus:outline-none"
+            className="bg-[#F5F6F5] border border-[#E7EBE8] rounded-xl px-3 py-2 text-xs font-bold text-[#171B18] focus:outline-none focus:border-[#078F36]"
           >
             <option value="all">All Types</option>
             <option value="dine_in">Dine-in</option>
@@ -124,88 +125,83 @@ export const OrdersPage: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-surfaceBorder rounded shadow-xs mt-4 overflow-hidden">
+      <div className="bg-white border border-[#E7EBE8] rounded-2xl shadow-sm mt-4 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-surface border-b border-surfaceBorder text-charcoal-700 font-semibold select-none">
-                <th className="py-2.5 px-3">Order / Inv #</th>
-                <th className="py-2.5 px-3">Time</th>
-                <th className="py-2.5 px-3">Type & Table</th>
-                <th className="py-2.5 px-3">Customer</th>
-                <th className="py-2.5 px-3 text-right">Total</th>
-                <th className="py-2.5 px-3 text-center">Payment</th>
-                <th className="py-2.5 px-3 text-center">Order Status</th>
-                <th className="py-2.5 px-3 text-right">Actions</th>
+              <tr className="bg-[#F5F6F5] border-b border-[#E7EBE8] text-[#171B18] font-extrabold select-none">
+                <th className="py-3 px-3.5">Order / Inv #</th>
+                <th className="py-3 px-3.5">Time</th>
+                <th className="py-3 px-3.5">Type & Table</th>
+                <th className="py-3 px-3.5">Customer</th>
+                <th className="py-3 px-3.5 text-right">Total</th>
+                <th className="py-3 px-3.5 text-center">Payment</th>
+                <th className="py-3 px-3.5 text-center">Order Status</th>
+                <th className="py-3 px-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-surfaceBorder">
+            <tbody className="divide-y divide-[#E7EBE8]">
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-charcoal-500">
+                  <td colSpan={8} className="py-10 text-center text-[#59615B] font-medium">
                     No orders match your filter criteria.
                   </td>
                 </tr>
               ) : (
                 filteredOrders.map(order => {
-                  let statusBadge = 'bg-surface text-charcoal-700';
-                  if (order.orderStatus === 'new') statusBadge = 'bg-blue-50 text-blue-800 border border-blue-200';
-                  if (order.orderStatus === 'preparing') statusBadge = 'bg-earthAmber-light text-earthAmber border border-earthAmber-border';
-                  if (order.orderStatus === 'ready') statusBadge = 'bg-purple-50 text-purple-800 border border-purple-200';
-                  if (order.orderStatus === 'completed') statusBadge = 'bg-forest-100 text-forest-700 border border-forest-600/30';
-                  if (order.orderStatus === 'cancelled') statusBadge = 'bg-earthRed-light text-earthRed border border-earthRed-border';
+                  let statusBadge = 'bg-[#F5F6F5] text-[#171B18] border-[#E7EBE8]';
+                  if (order.orderStatus === 'new') statusBadge = 'bg-blue-50 text-blue-700 border-blue-200';
+                  if (order.orderStatus === 'preparing') statusBadge = 'bg-amber-50 text-[#F5BD3D] border-amber-200';
+                  if (order.orderStatus === 'ready') statusBadge = 'bg-purple-50 text-purple-700 border-purple-200';
+                  if (order.orderStatus === 'completed') statusBadge = 'bg-[#F0F8F3] text-[#078F36] border-[#D8EFDF]';
+                  if (order.orderStatus === 'cancelled') statusBadge = 'bg-red-50 text-[#D94A43] border-red-200';
 
                   return (
-                    <tr key={order.id} className="hover:bg-neutralBg/70 transition-colors">
-                      <td className="py-2.5 px-3 font-mono font-bold text-charcoal-900">
+                    <tr key={order.id} className="hover:bg-[#F0F8F3]/60 transition-colors">
+                      <td className="py-3 px-3.5 font-mono font-bold text-[#171B18]">
                         {order.orderNumber}
-                        <div className="text-[10px] text-charcoal-500 font-normal">{order.invoiceNumber}</div>
+                        <div className="text-[10px] text-[#59615B] font-normal">{order.invoiceNumber}</div>
                       </td>
-                      <td className="py-2.5 px-3 text-charcoal-600 font-mono whitespace-nowrap">
-                        {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        <div className="text-[10px] text-charcoal-400">{new Date(order.createdAt).toLocaleDateString()}</div>
+                      <td className="py-3 px-3.5 text-[#171B18] font-mono whitespace-nowrap">
+                        <span className="font-bold">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <div className="text-[10px] text-[#59615B] font-normal">{new Date(order.createdAt).toLocaleDateString()}</div>
                       </td>
-                      <td className="py-2.5 px-3 whitespace-nowrap">
-                        <span className="font-semibold capitalize text-charcoal-800">{order.orderType.replace('_', ' ')}</span>
+                      <td className="py-3 px-3.5 whitespace-nowrap">
+                        <span className="font-bold capitalize text-[#171B18]">{order.orderType.replace('_', ' ')}</span>
                         {order.tableNumber && (
-                          <div className="text-[11px] text-charcoal-500 font-medium">Table: {order.tableNumber}</div>
+                          <div className="text-[11px] text-[#59615B] font-semibold">Table {order.tableNumber}</div>
                         )}
                       </td>
-                      <td className="py-2.5 px-3">
-                        <div className="font-semibold text-charcoal-900">{order.customerName || 'Walk-in'}</div>
-                        {order.customerPhone && <div className="text-[10px] text-charcoal-500 font-mono">{order.customerPhone}</div>}
+                      <td className="py-3 px-3.5 font-bold text-[#171B18]">
+                        {order.customerName || 'Walk-in'}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-bold text-forest-900 font-mono whitespace-nowrap">
-                        ₹{order.finalTotal}
+                      <td className="py-3 px-3.5 text-right font-extrabold text-[#171B18] font-mono">
+                        {currency}{order.finalTotal}
                       </td>
-                      <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                          order.paymentStatus === 'paid' ? 'bg-forest-100 text-forest-700 border border-forest-600/30' :
-                          order.paymentStatus === 'cancelled' ? 'bg-earthRed-light text-earthRed border border-earthRed-border' :
-                          'bg-earthAmber-light text-earthAmber border border-earthAmber-border'
-                        }`}>
-                          {order.paymentStatus}
+                      <td className="py-3 px-3.5 text-center">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-[#F0F8F3] text-[#078F36] border border-[#D8EFDF]">
+                          {order.paymentStatus || 'PAID'}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${statusBadge}`}>
+                      <td className="py-3 px-3.5 text-center">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${statusBadge}`}>
                           {order.orderStatus}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                      <td className="py-3 px-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setViewingOrder(order)}
-                            className="px-2 py-1 bg-surface hover:bg-surfaceBorder text-charcoal-900 rounded font-medium"
+                            className="px-2.5 py-1 bg-[#F5F6F5] hover:bg-gray-200 text-[#171B18] rounded-lg font-bold text-[11px] border border-[#E7EBE8]"
                           >
                             Details
                           </button>
                           <button
                             onClick={() => setPrintingOrder(order)}
-                            className="p-1 bg-surface hover:bg-surfaceBorder text-forest-800 rounded"
-                            title="Reprint Receipt"
+                            className="p-1 text-[#777F79] hover:text-[#078F36]"
+                            title="Print Invoice"
                           >
-                            <PrintIcon className="w-3.5 h-3.5" />
+                            <PrintIcon className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -218,120 +214,95 @@ export const OrdersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Order Details Modal */}
+      {/* Order Details Drawer Modal */}
       {viewingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded border border-surfaceBorder shadow-xl w-full max-w-lg text-charcoal-900 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 bg-surface border-b border-surfaceBorder">
-              <h3 className="font-bold text-xs text-forest-900">
-                Order #{viewingOrder.orderNumber} ({viewingOrder.invoiceNumber})
-              </h3>
-              <button onClick={() => setViewingOrder(null)} className="text-charcoal-500 hover:text-charcoal-900">
-                <CloseIcon className="w-4 h-4" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4">
+          <div className="bg-white rounded-2xl border border-[#E7EBE8] shadow-2xl w-full max-w-lg text-[#171B18] p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between pb-3 border-b border-[#E7EBE8]">
+              <div>
+                <h3 className="font-extrabold text-base text-[#171B18]">Order #{viewingOrder.orderNumber}</h3>
+                <span className="text-xs text-[#59615B] font-mono">{viewingOrder.invoiceNumber}</span>
+              </div>
+              <button onClick={() => setViewingOrder(null)} className="text-[#777F79] hover:text-[#171B18]">
+                <CloseIcon className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-4 space-y-3 text-xs max-h-[75vh] overflow-y-auto">
-              <div className="grid grid-cols-2 gap-2 bg-neutralBg p-2.5 rounded border border-surfaceBorder">
+            <div className="py-4 space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3 bg-[#F5F6F5] p-3 rounded-xl border border-[#E7EBE8]">
                 <div>
-                  <span className="text-charcoal-500 block">Order Type:</span>
-                  <span className="font-bold capitalize">{viewingOrder.orderType.replace('_', ' ')}</span>
+                  <span className="text-[#59615B] block font-bold text-[10px] uppercase">Order Type</span>
+                  <span className="font-bold capitalize text-[#171B18]">{viewingOrder.orderType.replace('_', ' ')}</span>
                 </div>
                 <div>
-                  <span className="text-charcoal-500 block">Table:</span>
-                  <span className="font-bold">{viewingOrder.tableNumber || 'N/A (Takeaway)'}</span>
+                  <span className="text-[#59615B] block font-bold text-[10px] uppercase">Table</span>
+                  <span className="font-bold text-[#171B18]">{viewingOrder.tableNumber ? `Table ${viewingOrder.tableNumber}` : 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="text-charcoal-500 block">Guest Name:</span>
-                  <span className="font-bold">{viewingOrder.customerName || 'Walk-in'}</span>
+                  <span className="text-[#59615B] block font-bold text-[10px] uppercase">Guest</span>
+                  <span className="font-bold text-[#171B18]">{viewingOrder.customerName || 'Walk-in'}</span>
                 </div>
                 <div>
-                  <span className="text-charcoal-500 block">Cashier:</span>
-                  <span className="font-bold">{viewingOrder.cashierName}</span>
+                  <span className="text-[#59615B] block font-bold text-[10px] uppercase">Payment</span>
+                  <span className="font-bold uppercase text-[#078F36]">{viewingOrder.paymentMethod} &bull; {viewingOrder.paymentStatus}</span>
                 </div>
               </div>
 
-              {viewingOrder.cancellationReason && (
-                <div className="p-2.5 bg-earthRed-light border border-earthRed-border text-earthRed rounded">
-                  <span className="font-bold block">Order Cancellation Reason:</span>
-                  <span>{viewingOrder.cancellationReason}</span>
-                </div>
-              )}
-
-              {/* Items List */}
-              <div className="border border-surfaceBorder rounded overflow-hidden">
-                <div className="bg-surface font-bold px-3 py-1.5 border-b border-surfaceBorder">Food Items</div>
-                <div className="divide-y divide-surfaceBorder p-2 space-y-1">
-                  {viewingOrder.items.map((item, idx) => (
-                    <div key={idx} className="pt-1 flex justify-between">
+              <div>
+                <h4 className="font-bold text-xs text-[#171B18] mb-2 uppercase tracking-wider">Ordered Items</h4>
+                <div className="divide-y divide-[#E7EBE8] border border-[#E7EBE8] rounded-xl overflow-hidden">
+                  {viewingOrder.items.map((i, idx) => (
+                    <div key={idx} className="p-2.5 flex justify-between items-center text-xs">
                       <div>
-                        <span className="font-semibold">{item.quantity}x {item.name}</span>
-                        {item.selectedVariant && (
-                          <div className="text-[10px] text-charcoal-500 pl-2">&bull; {item.selectedVariant.name}</div>
+                        <span className="font-bold text-[#171B18]">{i.quantity}x {i.name}</span>
+                        {i.selectedVariant && (
+                          <span className="text-[10px] text-[#078F36] block">&bull; {i.selectedVariant.name}</span>
                         )}
-                        {item.selectedAddOns?.map((a, aIdx) => (
-                          <div key={aIdx} className="text-[10px] text-charcoal-500 pl-2">+ {a.name}</div>
+                        {i.selectedAddOns?.map((a, aIdx) => (
+                          <span key={aIdx} className="text-[10px] text-[#59615B] block">+ {a.name}</span>
                         ))}
                       </div>
-                      <span className="font-mono font-bold">₹{item.totalPrice}</span>
+                      <span className="font-extrabold text-[#171B18] font-mono">{currency}{i.totalPrice}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Totals */}
-              <div className="space-y-1 pt-2 border-t border-surfaceBorder">
+              <div className="bg-[#F5F6F5] p-3 rounded-xl border border-[#E7EBE8] space-y-1 font-semibold text-[#171B18]">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span className="font-mono">₹{viewingOrder.subtotal.toFixed(2)}</span>
+                  <span className="font-mono">{currency}{viewingOrder.subtotal.toFixed(2)}</span>
                 </div>
-                {viewingOrder.discountAmount > 0 && (
-                  <div className="flex justify-between text-forest-700">
-                    <span>Discount:</span>
-                    <span className="font-mono">-₹{viewingOrder.discountAmount.toFixed(2)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between">
-                  <span>GST ({viewingOrder.taxRatePercent}%):</span>
-                  <span className="font-mono">₹{viewingOrder.taxAmount.toFixed(2)}</span>
+                  <span>Tax ({viewingOrder.taxRatePercent}%):</span>
+                  <span className="font-mono">{currency}{viewingOrder.taxAmount.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-sm text-forest-900 pt-1 border-t border-surfaceBorder">
-                  <span>Final Total:</span>
-                  <span className="font-mono">₹{viewingOrder.finalTotal}</span>
+                <div className="flex justify-between font-extrabold text-sm pt-2 border-t border-[#E7EBE8]">
+                  <span>Grand Total:</span>
+                  <span className="font-mono text-[#078F36]">{currency}{viewingOrder.finalTotal}</span>
                 </div>
               </div>
             </div>
 
-            <div className="p-3 bg-surface border-t border-surfaceBorder flex items-center justify-between text-xs">
-              <div>
-                {viewingOrder.orderStatus !== 'cancelled' && (
-                  <button
-                    onClick={() => {
-                      setCancellingOrder(viewingOrder);
-                    }}
-                    className="px-3 py-1.5 bg-earthRed-light text-earthRed border border-earthRed-border rounded font-bold hover:bg-earthRed hover:text-white transition-colors"
-                  >
-                    Cancel Bill
-                  </button>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
+            <div className="pt-3 border-t border-[#E7EBE8] flex justify-between items-center">
+              {viewingOrder.orderStatus !== 'cancelled' && (
+                <button
+                  onClick={() => setCancellingOrder(viewingOrder)}
+                  className="px-4 py-2 border border-red-200 bg-red-50 text-[#D94A43] rounded-xl text-xs font-bold hover:bg-red-100"
+                >
+                  Void / Cancel Bill
+                </button>
+              )}
+              <div className="flex gap-2 ml-auto">
                 <button
                   onClick={() => {
                     setPrintingOrder(viewingOrder);
                     setViewingOrder(null);
                   }}
-                  className="px-3 py-1.5 bg-forest-800 hover:bg-forest-900 text-white rounded font-bold flex items-center gap-1 shadow-xs"
+                  className="px-4 py-2 bg-[#078F36] hover:bg-[#087A32] text-white rounded-xl text-xs font-bold flex items-center gap-1.5"
                 >
                   <PrintIcon className="w-3.5 h-3.5" />
-                  <span>Print Receipt</span>
-                </button>
-                <button
-                  onClick={() => setViewingOrder(null)}
-                  className="px-3 py-1.5 border border-surfaceBorder rounded bg-white font-medium"
-                >
-                  Close
+                  <span>Print Bill</span>
                 </button>
               </div>
             </div>
@@ -339,38 +310,34 @@ export const OrdersPage: React.FC = () => {
         </div>
       )}
 
-      {/* Cancel Reason Modal */}
+      {/* Cancellation Modal */}
       {cancellingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded border border-surfaceBorder shadow-xl w-full max-w-sm text-charcoal-900 p-4">
-            <h3 className="font-bold text-xs text-earthRed mb-2">
-              Cancel Order #{cancellingOrder.orderNumber}
-            </h3>
-            <p className="text-[11px] text-charcoal-600 mb-3">
-              Cancelled bills are permanently audited and cannot be deleted. Please state reason:
-            </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4">
+          <div className="bg-white rounded-2xl border border-[#E7EBE8] shadow-2xl w-full max-w-sm text-[#171B18] p-5">
+            <h3 className="font-extrabold text-sm text-[#D94A43] mb-2">Void Order #{cancellingOrder.orderNumber}</h3>
+            <p className="text-xs text-[#59615B] mb-3">Please specify an audit reason for voiding this bill.</p>
             <form onSubmit={handleConfirmCancel} className="space-y-3 text-xs">
               <textarea
                 required
                 rows={3}
+                placeholder="Reason e.g. Customer changed mind, wrong items keyed..."
                 value={cancellationReason}
                 onChange={(e) => setCancellationReason(e.target.value)}
-                placeholder="e.g. Guest left before food prep / Duplicate bill entry"
-                className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none"
+                className="w-full p-2.5 border border-[#E7EBE8] rounded-xl text-xs text-[#171B18] focus:outline-none focus:border-[#D94A43]"
               />
-              <div className="flex justify-end gap-2 pt-1 border-t border-surfaceBorder">
+              <div className="flex justify-end gap-2 pt-2 border-t border-[#E7EBE8]">
                 <button
                   type="button"
                   onClick={() => setCancellingOrder(null)}
-                  className="px-3 py-1.5 border border-surfaceBorder rounded"
+                  className="px-3.5 py-1.5 border border-[#E7EBE8] rounded-xl text-xs font-semibold text-[#59615B]"
                 >
-                  Close
+                  Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-earthRed hover:bg-red-700 text-white rounded font-bold"
+                  className="px-4 py-1.5 bg-[#D94A43] hover:bg-red-700 text-white rounded-xl text-xs font-bold"
                 >
-                  Confirm Cancellation
+                  Confirm Void
                 </button>
               </div>
             </form>
@@ -378,7 +345,7 @@ export const OrdersPage: React.FC = () => {
         </div>
       )}
 
-      {/* Printing Modal */}
+      {/* Print Invoice Modal */}
       {printingOrder && currentRestaurant && (
         <PrintInvoiceModal
           order={printingOrder}
