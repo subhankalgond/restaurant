@@ -3,59 +3,40 @@
 @tailwind utilities;
 
 :root {
-  --bg-main: #0B0E14;
-  --bg-surface: #111622;
-  --border-muted: #1E2638;
-  --emerald-accent: #00D26A;
-  --text-primary: #F8FAFC;
-  --text-muted: #94A3B8;
+  --bg-main: #FBF9F5;
+  --bg-surface: #F3EFEA;
+  --border-muted: #E5DFD7;
+  --forest-dark: #1B4332;
+  --forest-light: #2D6A4F;
+  --text-charcoal: #1F2421;
+  --text-muted: #6B746E;
 }
 
 body {
   margin: 0;
-  background-color: #0B0E14;
-  color: #F8FAFC;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-charcoal);
+  font-family: 'Plus Jakarta Sans', 'Public Sans', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Dark Theme Surface & Form Overrides */
-.bg-white {
-  background-color: #111622 !important;
-  color: #F8FAFC !important;
-  border-color: #1E2638 !important;
-}
-
-input:not([type="checkbox"]):not([type="radio"]), 
-select, 
-textarea {
-  background-color: #161C2A !important;
-  color: #F8FAFC !important;
-  border-color: #1E2638 !important;
-}
-
-input::placeholder, 
-textarea::placeholder {
-  color: #64748B !important;
-}
-
-/* Custom Sleek Dark Scrollbars */
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0E14;
+  background: #F3EFEA;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1E2638;
-  border-radius: 4px;
+  background: #D2C9BE;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00D26A;
+  background: #1B4332;
 }
 
 /* Receipt Print Format (80mm & 58mm Thermal Printers) */
@@ -70,10 +51,17 @@ textarea::placeholder {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
+    width: 80mm;
+    margin: 0 auto;
+    padding: 2mm;
+    background: #FFFFFF;
+    color: #000000;
+    font-size: 11px;
+    font-family: monospace;
+    line-height: 1.25;
+  }
+  @page {
     margin: 0;
-    padding: 0;
-    color: black !important;
-    background: white !important;
+    size: 80mm auto;
   }
 }

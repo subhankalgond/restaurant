@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { isSupabaseConfigured } from '../../db/supabaseClient';
 import { 
-  RestroLogoIcon,
   DashboardIcon, 
   PosIcon, 
   OrdersIcon, 
@@ -10,17 +9,12 @@ import {
   TablesIcon, 
   MenuIcon, 
   InventoryIcon, 
-  CustomersIcon,
   StaffIcon, 
   ReportsIcon, 
   SettingsIcon, 
   ShieldIcon, 
   LogoutIcon,
-  CloseIcon,
-  SearchIcon,
-  CalendarIcon,
-  BellIcon,
-  ChevronDownIcon
+  CloseIcon 
 } from '../common/Icons';
 
 export type NavTab = 
@@ -47,32 +41,33 @@ interface AppLayoutProps {
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ currentTab, onNavigate, children }) => {
   const { currentUser, currentRestaurant, logout } = useAuth();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Super Admin view
   if (currentUser?.role === 'superadmin') {
     return (
-      <div className="min-h-screen bg-[#0B0E14] text-[#F8FAFC] flex flex-col antialiased">
-        <header className="h-16 bg-[#080A0F] text-white flex items-center justify-between px-6 border-b border-[#1E2638] flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <RestroLogoIcon className="w-8 h-8" />
+      <div className="min-h-screen bg-neutralBg flex flex-col antialiased">
+        <header className="h-14 bg-forest-900 text-neutralBg flex items-center justify-between px-4 border-b border-forest-800 flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded bg-forest-700 text-white flex items-center justify-center font-bold text-xs tracking-wider">
+              DF
+            </div>
             <div>
-              <span className="font-bold text-base tracking-tight text-white">DineFlow Super Admin</span>
-              <span className="text-[11px] text-gray-400 block -mt-0.5">Centralized Platform Control</span>
+              <span className="font-bold text-sm tracking-tight text-white">DineFlow Super Admin</span>
+              <span className="text-[10px] text-charcoal-300 block -mt-0.5">Centralized Platform Control</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111622] border border-[#1E2638] text-xs text-white">
-              <span className="w-2 h-2 rounded-full bg-[#00D26A]"></span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-forest-800 border border-forest-700 text-xs text-neutralBg">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
               <span>Platform Super Admin</span>
             </div>
 
             <button
               onClick={logout}
-              className="text-gray-300 hover:text-red-400 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111622] border border-[#1E2638] hover:border-red-900 transition-colors"
+              className="text-neutralBg hover:text-earthRed flex items-center gap-1 px-2 py-1 rounded hover:bg-forest-800"
             >
               <LogoutIcon className="w-3.5 h-3.5" />
               <span>Log out</span>
@@ -80,343 +75,224 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ currentTab, onNavigate, ch
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
     );
   }
 
-  // Sidebar navigation structure grouped exactly as in the reference design
-  const navSections = [
-    {
-      group: '', // Main group (no header)
-      items: [
-        { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon, roles: ['owner'] },
-        { id: 'pos', label: 'POS / New Order', icon: PosIcon, roles: ['owner', 'cashier'] },
-        { id: 'orders', label: 'Orders', icon: OrdersIcon, roles: ['owner', 'cashier', 'kitchen'] },
-        { id: 'tables', label: 'Tables', icon: TablesIcon, roles: ['owner', 'cashier'] },
-      ]
-    },
-    {
-      group: 'Management',
-      items: [
-        { id: 'menu', label: 'Menu', icon: MenuIcon, roles: ['owner'] },
-        { id: 'inventory', label: 'Inventory', icon: InventoryIcon, roles: ['owner'] },
-        { id: 'kitchen', label: 'Kitchen', icon: KitchenIcon, roles: ['owner', 'kitchen'] },
-        { id: 'tables', label: 'Customers', icon: CustomersIcon, roles: ['owner'] }, // Reusable patron view
-      ]
-    },
-    {
-      group: 'Business',
-      items: [
-        { id: 'reports', label: 'Reports', icon: ReportsIcon, roles: ['owner'] },
-        { id: 'staff', label: 'Staff', icon: StaffIcon, roles: ['owner'] },
-      ]
-    },
-    {
-      group: 'System',
-      items: [
-        { id: 'settings', label: 'Settings', icon: SettingsIcon, roles: ['owner'] },
-      ]
-    }
+  // Define navigational tabs according to role
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon, roles: ['owner'] },
+    { id: 'pos', label: 'POS & Billing', icon: PosIcon, roles: ['owner', 'cashier'] },
+    { id: 'orders', label: 'Orders', icon: OrdersIcon, roles: ['owner', 'cashier', 'kitchen'] },
+    { id: 'kitchen', label: 'Kitchen Display', icon: KitchenIcon, roles: ['owner', 'kitchen'] },
+    { id: 'tables', label: 'Table Management', icon: TablesIcon, roles: ['owner', 'cashier'] },
+    { id: 'menu', label: 'Menu Management', icon: MenuIcon, roles: ['owner'] },
+    { id: 'inventory', label: 'Inventory', icon: InventoryIcon, roles: ['owner'] },
+    { id: 'staff', label: 'Staff Management', icon: StaffIcon, roles: ['owner'] },
+    { id: 'reports', label: 'Sales Reports', icon: ReportsIcon, roles: ['owner'] },
+    { id: 'settings', label: 'Settings', icon: SettingsIcon, roles: ['owner'] }
   ];
 
+  const allowedNavItems = navItems.filter(item => item.roles.includes(currentUser?.role || ''));
+
   return (
-    <div className="min-h-screen bg-[#0B0E14] text-[#F8FAFC] flex antialiased">
-      {/* ---------------------------------------------------- */}
-      {/* 1. LEFT SIDEBAR (Near-black, matching reference)     */}
-      {/* ---------------------------------------------------- */}
-      <aside className="w-64 bg-[#080A0F] border-r border-[#1E2638] flex flex-col justify-between hidden md:flex flex-shrink-0 sticky top-0 h-screen select-none z-30">
-        <div className="flex flex-col flex-1 overflow-y-auto">
-          {/* Brand Header */}
-          <div className="p-5 pb-4 flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
-            <RestroLogoIcon className="w-8 h-8 flex-shrink-0" />
-            <div className="flex flex-col">
-              <span className="font-extrabold text-lg text-white tracking-tight leading-none">
-                RestroPOS
+    <div className="min-h-screen bg-neutralBg flex flex-col antialiased">
+      {/* Top Header */}
+      <header className="h-14 bg-forest-800 text-neutralBg flex items-center justify-between px-3.5 border-b border-forest-900 shadow-xs z-30 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          {/* Mobile hamburger toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-1.5 rounded hover:bg-forest-900 text-neutralBg"
+            aria-label="Toggle Navigation"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          {/* Desktop sidebar toggle */}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="hidden md:flex p-1.5 rounded hover:bg-forest-900 text-neutralBg"
+            title="Toggle Sidebar"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h10M4 18h16" />
+            </svg>
+          </button>
+
+          {/* Brand & Workspace Label */}
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate(currentUser?.role === 'kitchen' ? 'kitchen' : 'pos')}>
+            <div className="w-7 h-7 rounded bg-forest-600 text-white flex items-center justify-center font-bold text-xs tracking-wider">
+              DF
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="font-bold text-xs text-white tracking-wide">
+                {currentRestaurant?.name || 'Restaurant Workspace'}
               </span>
-              <span className="text-[10px] text-gray-400 font-medium tracking-wide mt-1">
-                Restaurant Management
+              <span className="text-[10px] text-charcoal-300 font-normal">
+                {currentRestaurant?.restaurantType || 'DineFlow POS'}
               </span>
             </div>
           </div>
-
-          {/* Navigation Links with Categorized Groups */}
-          <nav className="px-3.5 space-y-4 pt-2">
-            {navSections.map((section, idx) => {
-              const visibleItems = section.items.filter(item => item.roles.includes(currentUser?.role || ''));
-              if (visibleItems.length === 0) return null;
-
-              return (
-                <div key={idx} className="space-y-1">
-                  {section.group && (
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 px-3 py-1">
-                      {section.group}
-                    </div>
-                  )}
-
-                  {visibleItems.map(item => {
-                    const Icon = item.icon;
-                    const isActive = currentTab === item.id;
-
-                    return (
-                      <button
-                        key={item.id + (section.group || '')}
-                        onClick={() => onNavigate(item.id as NavTab)}
-                        className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 text-left ${
-                          isActive
-                            ? 'bg-[#00D26A] text-[#080A0F] font-bold shadow-lg shadow-[#00D26A]/20'
-                            : 'text-gray-300 hover:text-white hover:bg-[#111622]'
-                        }`}
-                      >
-                        <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#080A0F]' : 'text-gray-400'}`} />
-                        <span className="truncate">{item.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </nav>
         </div>
 
-        {/* Bottom Sidebar: Restaurant Card & User Profile */}
-        <div className="p-3.5 border-t border-[#1E2638] space-y-3 bg-[#080A0F]">
-          {/* Restaurant Card */}
-          <div className="bg-[#111622] border border-[#1E2638] rounded-xl p-2.5 flex items-center gap-2.5">
-            <img
-              src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=120&q=80"
-              alt="Restaurant Thumbnail"
-              className="w-10 h-10 object-cover rounded-lg border border-[#1E2638] flex-shrink-0"
-            />
-            <div className="flex-1 min-w-0">
-              <div className="font-bold text-xs text-white truncate">
-                {currentRestaurant?.name || 'Royal Bites'}
-              </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-gray-400 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00D26A]"></span>
-                <span className="truncate">Open • 9:00 AM - 11:00 PM</span>
-              </div>
-            </div>
+        {/* Right Top Controls */}
+        <div className="flex items-center gap-3 text-xs">
+          {/* Cloud Sync Status Indicator */}
+          <button
+            type="button"
+            onClick={() => onNavigate('settings')}
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium border border-forest-700 bg-forest-900/70 text-neutralBg hover:bg-forest-900 transition-colors"
+            title={isSupabaseConfigured ? 'Supabase Realtime Cloud Connected' : 'Local Storage Engine. Click to configure Supabase cloud database.'}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isSupabaseConfigured ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+            <span>{isSupabaseConfigured ? 'Supabase Realtime' : 'Local DB'}</span>
+          </button>
+
+          {/* Authenticated User Role Badge (Read-only, strictly enforced by auth) */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-forest-900/80 border border-forest-800 text-[11px] text-neutralBg">
+            <span className="w-1.5 h-1.5 rounded-full bg-forest-200"></span>
+            <span className="capitalize font-semibold">{currentUser?.role}</span>
           </div>
 
-          {/* User Profile Row */}
-          <div className="relative">
-            <div 
-              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="flex items-center justify-between p-1.5 rounded-xl hover:bg-[#111622] cursor-pointer transition-colors"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-[#1E2638] text-white font-bold flex items-center justify-center text-xs border border-gray-600 flex-shrink-0">
-                  {currentUser?.name?.charAt(0).toUpperCase() || 'S'}
+          {/* User Profile Pill */}
+          <div className="hidden sm:flex items-center gap-1.5 text-charcoal-100">
+            <div className="w-6 h-6 rounded-full bg-forest-700 text-white font-bold flex items-center justify-center text-[10px] border border-forest-600">
+              {currentUser?.name?.charAt(0) || 'U'}
+            </div>
+            <span className="truncate max-w-[120px] font-medium text-[11px]">{currentUser?.name}</span>
+          </div>
+
+          {/* Sign Out Button */}
+          <button
+            onClick={logout}
+            className="text-neutralBg hover:text-earthRed flex items-center gap-1 p-1 rounded hover:bg-forest-900"
+            title="Log Out"
+          >
+            <LogoutIcon className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline text-[11px]">Logout</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Main Container */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar */}
+        <aside
+          className={`${
+            sidebarCollapsed ? 'w-14' : 'w-52'
+          } hidden md:flex flex-col bg-surface border-r border-surfaceBorder transition-all duration-200 flex-shrink-0 select-none justify-between`}
+        >
+          {/* Navigation Links */}
+          <div className="py-2.5 overflow-y-auto">
+            <nav className="space-y-0.5 px-2">
+              {allowedNavItems.map(item => {
+                const Icon = item.icon;
+                const isActive = currentTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => onNavigate(item.id as NavTab)}
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-xs transition-colors group relative ${
+                      isActive
+                        ? 'bg-forest-800 text-white font-semibold shadow-xs'
+                        : 'text-charcoal-700 hover:text-charcoal-900 hover:bg-neutralBg'
+                    }`}
+                    title={sidebarCollapsed ? item.label : undefined}
+                  >
+                    <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-charcoal-500 group-hover:text-charcoal-900'}`} />
+                    {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Bottom Footer Info */}
+          <div className="p-2.5 border-t border-surfaceBorder bg-neutralBg/60 text-[11px]">
+            {!sidebarCollapsed ? (
+              <div className="flex flex-col gap-1">
+                <div className="font-semibold text-charcoal-900 truncate" title={currentRestaurant?.name}>
+                  {currentRestaurant?.name}
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="font-bold text-xs text-white truncate">
-                    {currentUser?.name || 'Admin'}
-                  </span>
-                  <span className="text-[10px] text-gray-400 capitalize">
-                    {currentUser?.role === 'owner' ? 'Administrator' : currentUser?.role}
-                  </span>
+                <div className="flex items-center justify-between text-charcoal-500">
+                  <span className="capitalize">{currentUser?.role}</span>
+                  <span className="text-[10px] text-forest-700 font-mono font-semibold">Active</span>
+                </div>
+                <div className="pt-1 border-t border-surfaceBorder flex justify-between text-[10px] text-charcoal-500">
+                  <button onClick={() => onNavigate('support')} className="hover:underline">Support</button>
+                  <button onClick={() => onNavigate('terms')} className="hover:underline">Terms</button>
                 </div>
               </div>
-              <ChevronDownIcon className="w-3.5 h-3.5 text-gray-400" />
-            </div>
-
-            {/* Profile Dropdown Menu */}
-            {userDropdownOpen && (
-              <div className="absolute bottom-12 left-0 right-0 bg-[#111622] border border-[#1E2638] rounded-xl shadow-2xl py-1.5 z-50 text-xs">
-                <div className="px-3 py-1.5 border-b border-[#1E2638] text-[10px] text-gray-400 font-semibold uppercase">
-                  Signed in as {currentUser?.email}
-                </div>
-                <button
-                  onClick={() => {
-                    onNavigate('settings');
-                    setUserDropdownOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-gray-200 hover:bg-[#161C2A] flex items-center gap-2"
-                >
-                  <SettingsIcon className="w-3.5 h-3.5 text-gray-400" />
-                  <span>Restaurant Settings</span>
-                </button>
-                <button
-                  onClick={() => {
-                    onNavigate('support');
-                    setUserDropdownOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-gray-200 hover:bg-[#161C2A] flex items-center gap-2"
-                >
-                  <ShieldIcon className="w-3.5 h-3.5 text-gray-400" />
-                  <span>Support & Diagnostics</span>
-                </button>
-                <div className="border-t border-[#1E2638] my-1"></div>
-                <button
-                  onClick={() => {
-                    logout();
-                    setUserDropdownOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-red-400 hover:bg-red-950/30 flex items-center gap-2 font-semibold"
-                >
-                  <LogoutIcon className="w-3.5 h-3.5" />
-                  <span>Sign Out</span>
-                </button>
+            ) : (
+              <div className="flex justify-center">
+                <span className="w-2 h-2 rounded-full bg-forest-700" title="Connected"></span>
               </div>
             )}
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      {/* ---------------------------------------------------- */}
-      {/* 2. MAIN CONTENT COLUMN (Top Nav + Scrollable Canvas) */}
-      {/* ---------------------------------------------------- */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
-        {/* Top Navigation Bar */}
-        <header className="h-16 bg-[#0B0E14] border-b border-[#1E2638] flex items-center justify-between px-6 flex-shrink-0 z-20">
-          <div className="flex items-center gap-3">
-            {/* Mobile Hamburger Button */}
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-lg bg-[#111622] text-gray-300 hover:text-white border border-[#1E2638]"
-              aria-label="Toggle Menu"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-
-            {/* Global Search Field */}
-            <div className="relative flex items-center w-64 sm:w-80 md:w-96">
-              <SearchIcon className="w-4 h-4 text-gray-400 absolute left-3.5 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search orders, menu items..."
-                className="w-full bg-[#111622] border border-[#1E2638] rounded-full pl-9 pr-4 py-2 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-[#00D26A] focus:ring-1 focus:ring-[#00D26A] transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Right Controls */}
-          <div className="flex items-center gap-3">
-            {/* Supabase Realtime Pill */}
-            <div
-              onClick={() => onNavigate('settings')}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#111622] border border-[#1E2638] text-[11px] text-gray-300 cursor-pointer hover:border-[#00D26A] transition-colors"
-              title="Cloud Database Status"
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${isSupabaseConfigured ? 'bg-[#00D26A] animate-pulse' : 'bg-amber-400'}`}></span>
-              <span>{isSupabaseConfigured ? 'Supabase Realtime' : 'Local Storage'}</span>
-            </div>
-
-            {/* Date Range Selector Pill */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#111622] border border-[#1E2638] text-xs text-gray-200 cursor-pointer hover:border-gray-600 transition-colors">
-              <CalendarIcon className="w-3.5 h-3.5 text-gray-400" />
-              <span className="font-medium">Last 7 Days</span>
-              <ChevronDownIcon className="w-3 h-3 text-gray-400 ml-0.5" />
-            </div>
-
-            {/* Notification Bell */}
-            <button
-              onClick={() => onNavigate('orders')}
-              className="w-9 h-9 rounded-lg bg-[#111622] border border-[#1E2638] flex items-center justify-center text-gray-300 hover:text-white relative hover:border-gray-600 transition-colors"
-              title="Recent Activity"
-            >
-              <BellIcon className="w-4 h-4" />
-              <span className="w-2 h-2 rounded-full bg-red-500 border border-[#0B0E14] absolute top-2 right-2"></span>
-            </button>
-
-            {/* User Avatar Circle */}
-            <div 
-              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="flex items-center gap-1.5 cursor-pointer"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#1E2638] text-white font-bold flex items-center justify-center text-xs border border-gray-600">
-                {currentUser?.name?.charAt(0).toUpperCase() || 'S'}
+        {/* Mobile Navigation Overlay Drawer */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-40 md:hidden flex">
+            <div className="fixed inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)}></div>
+            <div className="relative w-64 bg-surface text-charcoal-900 flex flex-col justify-between p-3 z-50 border-r border-surfaceBorder">
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-surfaceBorder">
+                  <div className="font-bold text-xs text-forest-800">{currentRestaurant?.name}</div>
+                  <button onClick={() => setMobileMenuOpen(false)} className="text-charcoal-500">
+                    <CloseIcon className="w-4 h-4" />
+                  </button>
+                </div>
+                <nav className="mt-3 space-y-1">
+                  {allowedNavItems.map(item => {
+                    const Icon = item.icon;
+                    const isActive = currentTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          onNavigate(item.id as NavTab);
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded text-xs ${
+                          isActive ? 'bg-forest-800 text-white font-bold' : 'text-charcoal-700 hover:bg-neutralBg'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
               </div>
-              <ChevronDownIcon className="w-3 h-3 text-gray-400 hidden sm:block" />
+
+              <div className="pt-3 border-t border-surfaceBorder">
+                <button
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-2 text-earthRed text-xs font-semibold py-1.5"
+                >
+                  <LogoutIcon className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
             </div>
           </div>
-        </header>
+        )}
 
-        {/* Scrollable Workspace Canvas */}
-        <main className="flex-1 overflow-y-auto bg-[#0B0E14]">
+        {/* Main Application Area */}
+        <main className="flex-1 overflow-y-auto bg-neutralBg text-charcoal-900 flex flex-col min-w-0">
           {children}
         </main>
       </div>
-
-      {/* ---------------------------------------------------- */}
-      {/* 3. MOBILE NAVIGATION DRAWER                          */}
-      {/* ---------------------------------------------------- */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}></div>
-          <div className="relative w-72 bg-[#080A0F] text-white flex flex-col justify-between p-4 z-50 border-r border-[#1E2638] h-full">
-            <div>
-              <div className="flex items-center justify-between pb-4 border-b border-[#1E2638]">
-                <div className="flex items-center gap-2.5">
-                  <RestroLogoIcon className="w-7 h-7" />
-                  <span className="font-bold text-base text-white">RestroPOS</span>
-                </div>
-                <button onClick={() => setMobileMenuOpen(false)} className="text-gray-400 hover:text-white">
-                  <CloseIcon className="w-5 h-5" />
-                </button>
-              </div>
-
-              <nav className="mt-4 space-y-4">
-                {navSections.map((section, idx) => {
-                  const visible = section.items.filter(i => i.roles.includes(currentUser?.role || ''));
-                  if (visible.length === 0) return null;
-
-                  return (
-                    <div key={idx} className="space-y-1">
-                      {section.group && (
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 px-3 py-1">
-                          {section.group}
-                        </div>
-                      )}
-                      {visible.map(item => {
-                        const Icon = item.icon;
-                        const isActive = currentTab === item.id;
-                        return (
-                          <button
-                            key={item.id}
-                            onClick={() => {
-                              onNavigate(item.id as NavTab);
-                              setMobileMenuOpen(false);
-                            }}
-                            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold ${
-                              isActive
-                                ? 'bg-[#00D26A] text-[#080A0F] font-bold'
-                                : 'text-gray-300 hover:bg-[#111622]'
-                            }`}
-                          >
-                            <Icon className={`w-4 h-4 ${isActive ? 'text-[#080A0F]' : 'text-gray-400'}`} />
-                            <span>{item.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </nav>
-            </div>
-
-            <div className="pt-4 border-t border-[#1E2638]">
-              <button
-                onClick={() => {
-                  logout();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full py-2.5 px-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/50 flex items-center justify-center gap-2 font-bold text-xs"
-              >
-                <LogoutIcon className="w-4 h-4" />
-                <span>Log Out</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
