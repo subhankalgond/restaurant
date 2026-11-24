@@ -9,6 +9,7 @@ export const MenuPage: React.FC = () => {
   const { currentRestaurant, currentUser } = useAuth();
   const { showToast } = useToast();
   const restId = currentRestaurant?.id || '';
+  const currency = currentRestaurant?.currencySymbol || '₹';
 
   const caller = {
     restaurantId: restId,
@@ -45,10 +46,14 @@ export const MenuPage: React.FC = () => {
     if (!restId) return;
     try {
       setCategories(backend.getCategories(caller, restId));
-      setItems(backend.getMenuItems(caller, restId));
+      setMenuItems(backend.getMenuItems(caller, restId));
     } catch (e: any) {
       console.error(e.message);
     }
+  };
+
+  const setMenuItems = (loaded: MenuItem[]) => {
+    setItems(loaded);
   };
 
   useEffect(() => {
@@ -163,19 +168,19 @@ export const MenuPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col p-4 md:p-6 max-w-6xl mx-auto w-full">
+    <div className="flex-1 flex flex-col p-4 md:p-6 max-w-6xl mx-auto w-full bg-[#F5F6F5] text-[#171B18]">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-surfaceBorder gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E7EBE8] gap-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-charcoal-900 tracking-tight">Menu Management</h1>
-          <p className="text-xs text-charcoal-500 mt-0.5">Dishes, pricing, dietary indicators, portion variants and availability switches</p>
+          <h1 className="text-xl md:text-2xl font-extrabold text-[#171B18] tracking-tight">Menu Management</h1>
+          <p className="text-xs text-[#59615B] font-medium mt-0.5">Dishes, pricing, dietary indicators, portion variants and availability switches</p>
         </div>
 
         <button
           onClick={() => handleOpenItemModal()}
-          className="flex items-center gap-1.5 bg-forest-800 hover:bg-forest-900 text-white px-3.5 py-1.5 rounded text-xs font-semibold shadow-xs self-start"
+          className="flex items-center gap-1.5 bg-[#078F36] hover:bg-[#087A32] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-[#078F36]/20 transition-all self-start"
         >
-          <PlusIcon className="w-3.5 h-3.5" />
+          <PlusIcon className="w-4 h-4 text-white" />
           <span>Add Menu Item</span>
         </button>
       </div>
@@ -183,25 +188,25 @@ export const MenuPage: React.FC = () => {
       {/* Dual Pane Layout */}
       <div className="flex-1 flex flex-col md:flex-row mt-4 gap-4 items-start">
         {/* Left Category Management Panel */}
-        <div className="w-full md:w-56 bg-surface border border-surfaceBorder rounded p-3 flex flex-col flex-shrink-0 text-xs">
-          <div className="flex items-center justify-between pb-2 border-b border-surfaceBorder mb-2">
-            <span className="font-bold text-forest-900 uppercase tracking-wider text-[11px]">Categories</span>
+        <div className="w-full md:w-60 bg-white border border-[#E7EBE8] rounded-2xl p-4 flex flex-col flex-shrink-0 text-xs shadow-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E7EBE8] mb-3">
+            <span className="font-extrabold text-[#171B18] uppercase tracking-wider text-xs">Categories</span>
             <button
               onClick={() => setIsCategoryModalOpen(true)}
-              className="text-forest-700 hover:text-forest-900 p-0.5"
+              className="text-[#078F36] hover:text-[#087A32] p-1 rounded-lg hover:bg-[#F0F8F3]"
               title="Add Category"
             >
-              <PlusIcon className="w-3.5 h-3.5" />
+              <PlusIcon className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="space-y-1 overflow-y-auto max-h-[500px]">
+          <div className="space-y-1.5 overflow-y-auto max-h-[500px]">
             <button
               onClick={() => setSelectedCategoryId('all')}
-              className={`w-full text-left px-2.5 py-1.5 rounded flex items-center justify-between transition-colors ${
+              className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between transition-colors font-bold ${
                 selectedCategoryId === 'all'
-                  ? 'bg-forest-800 text-white font-bold'
-                  : 'text-charcoal-700 hover:bg-neutralBg'
+                  ? 'bg-[#078F36] text-white shadow-2xs'
+                  : 'text-[#171B18] hover:bg-[#F5F6F5]'
               }`}
             >
               <span>All Items</span>
@@ -215,10 +220,10 @@ export const MenuPage: React.FC = () => {
               return (
                 <div
                   key={cat.id}
-                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded transition-colors ${
+                  className={`group flex items-center justify-between px-3 py-2 rounded-xl transition-colors font-bold ${
                     isSelected
-                      ? 'bg-forest-800 text-white font-bold'
-                      : 'text-charcoal-700 hover:bg-neutralBg'
+                      ? 'bg-[#078F36] text-white shadow-2xs'
+                      : 'text-[#171B18] hover:bg-[#F5F6F5]'
                   }`}
                 >
                   <button
@@ -232,10 +237,10 @@ export const MenuPage: React.FC = () => {
                     <span className="text-[10px] font-mono opacity-80">{count}</span>
                     <button
                       onClick={() => handleDeleteCategory(cat.id, cat.name)}
-                      className="hidden group-hover:inline text-earthRed hover:text-red-700"
+                      className={`hidden group-hover:inline hover:text-red-700 ${isSelected ? 'text-white' : 'text-[#D94A43]'}`}
                       title="Delete category"
                     >
-                      <TrashIcon className="w-3 h-3" />
+                      <TrashIcon className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -245,81 +250,73 @@ export const MenuPage: React.FC = () => {
         </div>
 
         {/* Right Main Table */}
-        <div className="flex-1 w-full bg-white border border-surfaceBorder rounded shadow-xs overflow-hidden flex flex-col">
+        <div className="flex-1 w-full bg-white border border-[#E7EBE8] rounded-2xl shadow-sm overflow-hidden flex flex-col">
           {/* Search bar */}
-          <div className="p-3 bg-surface border-b border-surfaceBorder flex items-center justify-between text-xs">
-            <div className="relative w-full sm:w-64">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-charcoal-500">
-                <SearchIcon className="w-3.5 h-3.5" />
+          <div className="p-3.5 bg-white border-b border-[#E7EBE8] flex items-center justify-between text-xs">
+            <div className="relative w-full sm:w-72">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-[#777F79]">
+                <SearchIcon className="w-4 h-4 text-[#777F79]" />
               </span>
               <input
                 type="text"
-                placeholder="Filter items..."
+                placeholder="Filter dishes by name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 bg-white border border-surfaceBorder rounded focus:outline-none"
+                className="w-full pl-9 pr-3 py-2 bg-[#F5F6F5] border border-[#E7EBE8] rounded-xl text-xs font-semibold text-[#171B18] placeholder-[#777F79] focus:outline-none focus:border-[#078F36]"
               />
             </div>
-            <span className="text-charcoal-500">{filteredItems.length} items</span>
+            <span className="text-xs font-bold text-[#59615B]">{filteredItems.length} dishes listed</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-surface border-b border-surfaceBorder text-charcoal-700 font-semibold select-none">
-                  <th className="py-2.5 px-3">Item Name</th>
-                  <th className="py-2.5 px-3">Type</th>
-                  <th className="py-2.5 px-3 text-right">Price</th>
-                  <th className="py-2.5 px-3 text-center">Availability</th>
-                  <th className="py-2.5 px-3 text-right">Actions</th>
+                <tr className="bg-[#F5F6F5] border-b border-[#E7EBE8] text-[#171B18] font-extrabold select-none">
+                  <th className="py-3 px-3.5">Dish Name</th>
+                  <th className="py-3 px-3.5">Category</th>
+                  <th className="py-3 px-3.5">Type</th>
+                  <th className="py-3 px-3.5 text-right">Price</th>
+                  <th className="py-3 px-3.5 text-center">Available</th>
+                  <th className="py-3 px-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surfaceBorder">
+              <tbody className="divide-y divide-[#E7EBE8]">
                 {filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-charcoal-500">
-                      No menu items found. Click "Add Menu Item" above to add food items.
+                    <td colSpan={6} className="py-10 text-center text-[#59615B] font-medium">
+                      No menu dishes found in this category.
                     </td>
                   </tr>
                 ) : (
                   filteredItems.map(item => (
-                    <tr key={item.id} className="hover:bg-neutralBg/70 transition-colors">
-                      <td className="py-2.5 px-3">
-                        <div className="font-semibold text-charcoal-900">{item.name}</div>
+                    <tr key={item.id} className="hover:bg-[#F0F8F3]/60 transition-colors">
+                      <td className="py-3 px-3.5">
+                        <span className="font-extrabold text-xs text-[#171B18]">{item.name}</span>
                         {item.description && (
-                          <div className="text-[10px] text-charcoal-500 line-clamp-1">{item.description}</div>
+                          <div className="text-[11px] text-[#59615B] font-medium line-clamp-1 mt-0.5">{item.description}</div>
                         )}
                       </td>
-                      <td className="py-2.5 px-3 whitespace-nowrap">
-                        {item.itemType === 'veg' && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-forest-700 bg-forest-100 px-2 py-0.5 rounded">
-                            <span className="w-1.5 h-1.5 rounded-full bg-forest-700"></span> Veg
-                          </span>
-                        )}
-                        {item.itemType === 'non_veg' && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-earthRed bg-earthRed-light px-2 py-0.5 rounded">
-                            <span className="w-1.5 h-1.5 rounded-full bg-earthRed"></span> Non-Veg
-                          </span>
-                        )}
-                        {item.itemType === 'egg' && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-earthAmber bg-earthAmber-light px-2 py-0.5 rounded">
-                            Egg
-                          </span>
-                        )}
-                        {item.itemType === 'vegan' && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-forest-700 bg-forest-100 px-2 py-0.5 rounded">
-                            Vegan
-                          </span>
-                        )}
+                      <td className="py-3 px-3.5 font-bold text-[#59615B]">
+                        {categories.find(c => c.id === item.categoryId)?.name || 'General'}
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-forest-900 whitespace-nowrap">
-                        ₹{item.price}
+                      <td className="py-3 px-3.5">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
+                          item.itemType === 'veg'
+                            ? 'bg-[#F0F8F3] text-[#078F36] border-[#D8EFDF]'
+                            : 'bg-red-50 text-[#D94A43] border-red-200'
+                        }`}>
+                          {item.itemType}
+                        </span>
                       </td>
-                      <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                      <td className="py-3 px-3.5 text-right font-mono font-extrabold text-sm text-[#171B18]">
+                        {currency}{item.price}
+                      </td>
+                      <td className="py-3 px-3.5 text-center">
                         <button
+                          type="button"
                           onClick={() => handleToggleAvailability(item)}
                           className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            item.isAvailable ? 'bg-forest-700' : 'bg-charcoal-300'
+                            item.isAvailable ? 'bg-[#078F36]' : 'bg-gray-300'
                           }`}
                         >
                           <span
@@ -329,18 +326,18 @@ export const MenuPage: React.FC = () => {
                           />
                         </button>
                       </td>
-                      <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                      <td className="py-3 px-3.5 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleOpenItemModal(item)}
-                            className="p-1 text-charcoal-500 hover:text-charcoal-900"
+                            className="p-1 text-[#777F79] hover:text-[#078F36]"
                             title="Edit Item"
                           >
                             <EditIcon className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteItem(item.id, item.name)}
-                            className="p-1 text-earthRed hover:text-red-700"
+                            className="p-1 text-[#D94A43] hover:text-red-700"
                             title="Delete Item"
                           >
                             <TrashIcon className="w-3.5 h-3.5" />
@@ -358,31 +355,31 @@ export const MenuPage: React.FC = () => {
 
       {/* Add / Edit Item Modal */}
       {isItemModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded border border-surfaceBorder shadow-xl w-full max-w-md text-charcoal-900 p-4 max-h-[85vh] overflow-y-auto">
-            <h3 className="font-bold text-xs text-forest-900 mb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4">
+          <div className="bg-white rounded-2xl border border-[#E7EBE8] shadow-2xl w-full max-w-md text-[#171B18] p-6 max-h-[85vh] overflow-y-auto">
+            <h3 className="font-extrabold text-base text-[#171B18] mb-3">
               {editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}
             </h3>
-            <form onSubmit={handleSaveItem} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveItem} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold mb-1">Item Name *</label>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Item Name *</label>
                 <input
                   type="text"
                   required
                   value={itemForm.name}
                   onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
                   placeholder="e.g. Woodfired Margherita Pizza"
-                  className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none"
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold mb-1">Category *</label>
+                  <label className="block font-bold text-xs text-[#171B18] mb-1">Category *</label>
                   <select
                     value={itemForm.categoryId}
                     onChange={(e) => setItemForm({ ...itemForm, categoryId: e.target.value })}
-                    className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none"
+                    className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36] bg-white"
                   >
                     {categories.map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
@@ -390,11 +387,11 @@ export const MenuPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">Food Type</label>
+                  <label className="block font-bold text-xs text-[#171B18] mb-1">Food Type</label>
                   <select
                     value={itemForm.itemType}
                     onChange={(e) => setItemForm({ ...itemForm, itemType: e.target.value as any })}
-                    className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none"
+                    className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36] bg-white"
                   >
                     <option value="veg">Vegetarian (Green)</option>
                     <option value="non_veg">Non-Vegetarian (Red)</option>
@@ -406,7 +403,7 @@ export const MenuPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold mb-1">Price (₹) *</label>
+                  <label className="block font-bold text-xs text-[#171B18] mb-1">Price ({currency}) *</label>
                   <input
                     type="number"
                     min="0"
@@ -414,30 +411,30 @@ export const MenuPage: React.FC = () => {
                     required
                     value={itemForm.price}
                     onChange={(e) => setItemForm({ ...itemForm, price: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none font-mono"
+                    className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36] font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold mb-1">GST Tax (%)</label>
+                  <label className="block font-bold text-xs text-[#171B18] mb-1">GST Tax (%)</label>
                   <input
                     type="number"
                     min="0"
                     step="0.5"
                     value={itemForm.taxPercent}
                     onChange={(e) => setItemForm({ ...itemForm, taxPercent: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none font-mono"
+                    className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36] font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold mb-1">Description (Optional)</label>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Description (Optional)</label>
                 <textarea
                   rows={2}
                   value={itemForm.description}
                   onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
                   placeholder="Ingredients and culinary notes..."
-                  className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded focus:outline-none"
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl text-xs font-semibold text-[#171B18] focus:outline-none focus:border-[#078F36]"
                 />
               </div>
 
@@ -447,26 +444,27 @@ export const MenuPage: React.FC = () => {
                   id="itemAvailable"
                   checked={itemForm.isAvailable}
                   onChange={(e) => setItemForm({ ...itemForm, isAvailable: e.target.checked })}
-                  className="rounded border-surfaceBorder text-forest-800"
+                  className="rounded border-[#E7EBE8] text-[#078F36] focus:ring-[#078F36]"
                 />
-                <label htmlFor="itemAvailable" className="font-semibold cursor-pointer">
-                  Available for counter billing
+                <label htmlFor="itemAvailable" className="font-bold text-xs text-[#171B18]">
+                  Available for Billing
                 </label>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-surfaceBorder">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#E7EBE8]">
                 <button
                   type="button"
                   onClick={() => setIsItemModalOpen(false)}
-                  className="px-3 py-1.5 border border-surfaceBorder rounded"
+                  className="px-4 py-2 border border-[#E7EBE8] rounded-xl font-bold text-[#59615B] hover:text-[#171B18]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-forest-800 hover:bg-forest-900 text-white rounded font-medium"
+                  className="px-5 py-2 bg-[#078F36] hover:bg-[#087A32] text-white rounded-xl font-bold shadow-md shadow-[#078F36]/20 transition-all flex items-center gap-1.5"
                 >
-                  Save Item
+                  <PlusIcon className="w-4 h-4 text-white" />
+                  <span>Save Menu Item</span>
                 </button>
               </div>
             </form>
@@ -474,34 +472,38 @@ export const MenuPage: React.FC = () => {
         </div>
       )}
 
-      {/* Category Modal */}
+      {/* Add Category Modal */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded border border-surfaceBorder shadow-xl w-full max-w-xs text-charcoal-900 p-4">
-            <h3 className="font-bold text-xs text-forest-900 mb-2">Create Menu Category</h3>
-            <form onSubmit={handleSaveCategory}>
-              <input
-                type="text"
-                autoFocus
-                required
-                value={categoryNameInput}
-                onChange={(e) => setCategoryNameInput(e.target.value)}
-                placeholder="e.g. Desserts & Bakes"
-                className="w-full px-2.5 py-1.5 border border-surfaceBorder rounded text-xs mb-3 focus:outline-none"
-              />
-              <div className="flex justify-end gap-2 text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4">
+          <div className="bg-white rounded-2xl border border-[#E7EBE8] shadow-2xl w-full max-w-sm text-[#171B18] p-5">
+            <h3 className="font-extrabold text-sm text-[#171B18] mb-3">Add Menu Category</h3>
+            <form onSubmit={handleSaveCategory} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Category Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={categoryNameInput}
+                  onChange={(e) => setCategoryNameInput(e.target.value)}
+                  placeholder="e.g. Starters, Beverages, Desserts"
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#E7EBE8]">
                 <button
                   type="button"
                   onClick={() => setIsCategoryModalOpen(false)}
-                  className="px-3 py-1 border border-surfaceBorder rounded"
+                  className="px-4 py-2 border border-[#E7EBE8] rounded-xl font-bold text-[#59615B] hover:text-[#171B18]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-3 py-1 bg-forest-800 text-white rounded font-medium"
+                  className="px-5 py-2 bg-[#078F36] hover:bg-[#087A32] text-white rounded-xl font-bold shadow-md shadow-[#078F36]/20 transition-all flex items-center gap-1.5"
                 >
-                  Save
+                  <PlusIcon className="w-4 h-4 text-white" />
+                  <span>Create Category</span>
                 </button>
               </div>
             </form>

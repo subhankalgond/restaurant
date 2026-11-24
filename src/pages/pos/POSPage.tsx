@@ -139,6 +139,18 @@ export const POSPage: React.FC = () => {
   // Three-copy print trigger after order
   const [confirmedOrderToPrint, setConfirmedOrderToPrint] = useState<Order | null>(null);
 
+  // Add Dish Modal (For owner / cashier)
+  const [isAddDishModalOpen, setIsAddDishModalOpen] = useState(false);
+  const [newDishName, setNewDishName] = useState('');
+  const [newDishCategory, setNewDishCategory] = useState('');
+  const [newDishPrice, setNewDishPrice] = useState<number>(150);
+  const [newDishType, setNewDishType] = useState<'veg' | 'non_veg'>('veg');
+  const [newDishDescription, setNewDishDescription] = useState('');
+
+  // Add Category Modal
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
   const loadData = () => {
     if (!restId) return;
     try {
@@ -373,6 +385,59 @@ export const POSPage: React.FC = () => {
     setConfirmedOrderToPrint(saved);
   };
 
+  // Add Dish
+  const handleCreateDish = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDishName.trim() || !newDishCategory || newDishPrice <= 0) {
+      showToast('Please fill all required dish details', 'warning');
+      return;
+    }
+
+    const newItem: MenuItem = {
+      id: 'item_' + Date.now(),
+      restaurantId: restId,
+      categoryId: newDishCategory,
+      name: newDishName.trim(),
+      price: Number(newDishPrice),
+      description: newDishDescription.trim() || undefined,
+      itemType: newDishType,
+      isAvailable: true,
+      taxPercent: taxRate,
+      variants: [],
+      addOns: [],
+      createdAt: new Date().toISOString()
+    };
+
+    backend.saveMenuItem(caller, newItem);
+    loadData();
+    setIsAddDishModalOpen(false);
+    setNewDishName('');
+    setNewDishPrice(150);
+    setNewDishDescription('');
+    showToast(`"${newItem.name}" added to menu successfully!`, 'success');
+  };
+
+  // Add Category
+  const handleCreateCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+
+    const newCat: MenuCategory = {
+      id: 'cat_' + Date.now(),
+      restaurantId: restId,
+      name: newCategoryName.trim(),
+      slug: newCategoryName.toLowerCase().replace(/\s+/g, '-'),
+      displayOrder: categories.length + 1,
+      isActive: true
+    };
+
+    backend.saveCategory(caller, newCat);
+    loadData();
+    setIsAddCategoryModalOpen(false);
+    setNewCategoryName('');
+    showToast(`Category "${newCat.name}" added!`, 'success');
+  };
+
   return (
     <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden select-none bg-[#F5F6F5]">
       {/* ---------------------------------------------------- */}
@@ -381,7 +446,7 @@ export const POSPage: React.FC = () => {
       <div className="flex-1 flex flex-col overflow-hidden bg-[#F5F6F5] relative">
         {/* Top Search & Filter Bar */}
         <div className="p-4 pb-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 flex-1 max-w-xl">
+          <div className="flex items-center gap-3 flex-1 max-w-2xl">
             {/* Search Input matching CHILI POS */}
             <div className="relative flex-1">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#777F79]">
@@ -413,6 +478,20 @@ export const POSPage: React.FC = () => {
             >
               <FilterSlidersIcon className="w-4 h-4" />
             </button>
+
+            {/* Add Dish Button */}
+            {currentUser?.role === 'owner' && (
+              <button
+                onClick={() => {
+                  setNewDishCategory(categories[0]?.id || '');
+                  setIsAddDishModalOpen(true);
+                }}
+                className="px-3.5 py-2.5 bg-[#078F36] hover:bg-[#087A32] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md shadow-[#078F36]/20 transition-all whitespace-nowrap"
+              >
+                <PlusIcon className="w-4 h-4 text-white" />
+                <span>Add Dish</span>
+              </button>
+            )}
           </div>
 
           {/* Held Bills Quick Access */}
@@ -478,6 +557,23 @@ export const POSPage: React.FC = () => {
               </button>
             );
           })}
+
+          {/* Add Category Card for Owner */}
+          {currentUser?.role === 'owner' && (
+            <button
+              onClick={() => setIsAddCategoryModalOpen(true)}
+              className="flex flex-col items-center justify-center min-w-[90px] h-[78px] px-3 rounded-2xl transition-all duration-150 flex-shrink-0 border-2 border-dashed border-[#078F36] bg-[#F0F8F3] hover:bg-[#D8EFDF] text-[#078F36] shadow-2xs"
+              title="Add New Category"
+            >
+              <PlusIcon className="w-5 h-5 mb-1 text-[#078F36]" />
+              <span className="text-xs font-extrabold text-[#078F36]">
+                + Category
+              </span>
+              <span className="text-[10px] text-[#078F36]/80 font-bold leading-tight">
+                New Group
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Product Cards 3-Column Grid */}
@@ -1108,6 +1204,166 @@ export const POSPage: React.FC = () => {
           restaurant={currentRestaurant}
           onClose={() => setConfirmedOrderToPrint(null)}
         />
+      )}
+
+      {/* Add New Dish Modal */}
+      {isAddDishModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4">
+          <div className="bg-white rounded-2xl border border-[#E7EBE8] shadow-2xl w-full max-w-md text-[#171B18] p-6">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E7EBE8]">
+              <h3 className="font-extrabold text-base text-[#171B18]">Add New Menu Dish</h3>
+              <button onClick={() => setIsAddDishModalOpen(false)} className="text-[#777F79] hover:text-[#171B18]">
+                <CloseIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateDish} className="py-4 space-y-3.5 text-xs">
+              <div>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Dish Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Margherita Pizza, Classic Burger"
+                  value={newDishName}
+                  onChange={(e) => setNewDishName(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-xs text-[#171B18] mb-1">Category *</label>
+                  <select
+                    required
+                    value={newDishCategory}
+                    onChange={(e) => setNewDishCategory(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] bg-white focus:outline-none focus:border-[#078F36]"
+                  >
+                    <option value="">Select Category...</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-xs text-[#171B18] mb-1">Price ({currency}) *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    required
+                    placeholder="150"
+                    value={newDishPrice}
+                    onChange={(e) => setNewDishPrice(parseFloat(e.target.value) || 0)}
+                    className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] font-mono focus:outline-none focus:border-[#078F36]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-xs text-[#171B18] mb-1">Dietary Type *</label>
+                  <div className="flex items-center gap-3 pt-1">
+                    <label className="flex items-center gap-1.5 cursor-pointer font-bold text-xs">
+                      <input
+                        type="radio"
+                        name="dishType"
+                        checked={newDishType === 'veg'}
+                        onChange={() => setNewDishType('veg')}
+                        className="text-[#078F36] focus:ring-[#078F36]"
+                      />
+                      <span className="text-[#078F36]">Veg</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer font-bold text-xs">
+                      <input
+                        type="radio"
+                        name="dishType"
+                        checked={newDishType === 'non_veg'}
+                        onChange={() => setNewDishType('non_veg')}
+                        className="text-[#D94A43] focus:ring-[#D94A43]"
+                      />
+                      <span className="text-[#D94A43]">Non-Veg</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Description (Optional)</label>
+                <textarea
+                  rows={2}
+                  placeholder="Ingredients, preparation notes, flavor profile..."
+                  value={newDishDescription}
+                  onChange={(e) => setNewDishDescription(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl text-xs font-semibold text-[#171B18] focus:outline-none focus:border-[#078F36]"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-[#E7EBE8] flex justify-end gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setIsAddDishModalOpen(false)}
+                  className="px-4 py-2 border border-[#E7EBE8] rounded-xl font-bold text-[#59615B] hover:text-[#171B18]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#078F36] hover:bg-[#087A32] text-white rounded-xl font-bold shadow-md shadow-[#078F36]/20 transition-all flex items-center gap-1.5"
+                >
+                  <PlusIcon className="w-4 h-4 text-white" />
+                  <span>Save Dish</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add New Category Modal */}
+      {isAddCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4">
+          <div className="bg-white rounded-2xl border border-[#E7EBE8] shadow-2xl w-full max-w-sm text-[#171B18] p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E7EBE8]">
+              <h3 className="font-extrabold text-sm text-[#171B18]">Add Food Category</h3>
+              <button onClick={() => setIsAddCategoryModalOpen(false)} className="text-[#777F79] hover:text-[#171B18]">
+                <CloseIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCategory} className="py-3 space-y-3.5 text-xs">
+              <div>
+                <label className="block font-bold text-xs text-[#171B18] mb-1">Category Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Starters, Woodfired Pizzas, Desserts"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#E7EBE8] rounded-xl font-bold text-xs text-[#171B18] focus:outline-none focus:border-[#078F36]"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-[#E7EBE8] flex justify-end gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setIsAddCategoryModalOpen(false)}
+                  className="px-4 py-2 border border-[#E7EBE8] rounded-xl font-bold text-[#59615B] hover:text-[#171B18]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#078F36] hover:bg-[#087A32] text-white rounded-xl font-bold shadow-md shadow-[#078F36]/20 transition-all flex items-center gap-1.5"
+                >
+                  <PlusIcon className="w-4 h-4 text-white" />
+                  <span>Create Category</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

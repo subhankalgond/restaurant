@@ -83,9 +83,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ currentTab, onNavigate, ch
   }
 
   // Define navigational tabs matching the CHILI POS sidebar
-  // Menu (POS/Billing), Table Services (Tables), Reservation (Orders), Delivery (Kitchen), Accounting (Reports), Settings
+  // Menu (POS/Billing), Menu Management, Table Services (Tables), Reservation (Orders), Delivery (Kitchen), Accounting (Reports), Settings
   const navItems = [
-    { id: 'pos', label: 'Menu', icon: MenuBookIcon, roles: ['owner', 'cashier'] },
+    { id: 'pos', label: 'Menu & POS', icon: PosIcon, roles: ['owner', 'cashier'] },
+    { id: 'menu', label: 'Menu Management', icon: MenuBookIcon, roles: ['owner'] },
     { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon, roles: ['owner'] },
     { id: 'tables', label: 'Table Services', icon: TableServicesIcon, roles: ['owner', 'cashier'] },
     { id: 'orders', label: 'Reservation', icon: ReservationIcon, roles: ['owner', 'cashier', 'kitchen'] },
