@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { AppLayout, NavTab } from './components/layout/AppLayout';
+import { backend } from './db/backendService';
+import { offlineQueue } from './db/offlineQueue';
 
 // Auth & Public Pages
 import { LoginPage } from './pages/auth/LoginPage';
@@ -26,13 +28,30 @@ import { SuperAdminPage } from './pages/superadmin/SuperAdminPage';
 type UnauthView = 'login' | 'register' | 'terms' | 'privacy';
 
 const MainShell: React.FC = () => {
-  const { currentUser, isLoading } = useAuth();
+  const { currentUser, currentRestaurant, isLoading } = useAuth();
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
   const [unauthView, setUnauthView] = useState<UnauthView>('register');
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+  const [syncInfo, setSyncInfo] = useState(() => backend.getSyncStatus(currentRestaurant?.id));
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
+    const updateSync = () => setSyncInfo(backend.getSyncStatus(currentRestaurant?.id));
+    updateSync();
+    const unsubBackend = backend.subscribe(updateSync);
+    const unsubQueue = offlineQueue.subscribe(updateSync);
+    return () => {
+      unsubBackend();
+      unsubQueue();
+    };
+  }, [currentRestaurant?.id]);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      if (currentRestaurant?.id) {
+        backend.syncOfflineQueue(currentRestaurant.id);
+      }
+    };
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -40,7 +59,7 @@ const MainShell: React.FC = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [currentRestaurant?.id]);
 
   // Sync tab according to role when user changes
   useEffect(() => {
@@ -133,9 +152,29 @@ const MainShell: React.FC = () => {
 
   return (
     <>
-      {!isOnline && (
-        <div className="bg-[#A76527] text-white text-xs py-1 px-4 text-center font-medium sticky top-0 z-50 flex items-center justify-center gap-2">
-          <span>Operating in Offline Mode. Local billing, KOT generation, and table management continue uninterrupted.</span>
+      {(!isOnline || syncInfo.pendingCount > 0 || syncInfo.lastSyncError) && (
+        <div
+          className={`text-white text-xs py-1.5 px-4 text-center font-medium sticky top-0 z-50 flex items-center justify-center gap-3 ${
+            !isOnline ? 'bg-[#A76527]' : syncInfo.lastSyncError ? 'bg-[#D94A43]' : 'bg-[#078F36]'
+          }`}
+        >
+          <span>
+            {!isOnline
+              ? `Offline Mode: ${syncInfo.pendingCount} pending operation(s) queued safely for sync.`
+              : syncInfo.isSyncing
+              ? `Synchronizing ${syncInfo.pendingCount} pending operation(s) with Supabase...`
+              : syncInfo.lastSyncError
+              ? `Sync Notice: ${syncInfo.lastSyncError} (${syncInfo.pendingCount} pending)`
+              : `${syncInfo.pendingCount} pending offline operation(s) ready to sync.`}
+          </span>
+          {isOnline && syncInfo.pendingCount > 0 && !syncInfo.isSyncing && currentRestaurant?.id && (
+            <button
+              onClick={() => backend.syncOfflineQueue(currentRestaurant.id)}
+              className="px-2.5 py-0.5 bg-white/20 hover:bg-white/30 rounded font-bold underline"
+            >
+              Sync Now
+            </button>
+          )}
         </div>
       )}
       <AppLayout currentTab={currentTab} onNavigate={setCurrentTab}>

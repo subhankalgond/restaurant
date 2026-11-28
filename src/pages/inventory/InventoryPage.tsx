@@ -83,7 +83,7 @@ export const InventoryPage: React.FC = () => {
     setIsItemModalOpen(true);
   };
 
-  const handleSaveItem = (e: React.FormEvent) => {
+  const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!itemForm.name.trim()) return;
 
@@ -97,9 +97,13 @@ export const InventoryPage: React.FC = () => {
       costPerUnit: Number(itemForm.costPerUnit)
     };
 
-    backend.saveInventoryItem(caller, toSave);
-    setIsItemModalOpen(false);
-    showToast(editingItem ? 'Item updated' : 'Stock item added', 'success');
+    try {
+      await backend.saveInventoryItem(caller, toSave);
+      setIsItemModalOpen(false);
+      showToast(editingItem ? 'Item updated' : 'Stock item added', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save inventory item', 'error');
+    }
   };
 
   const handleOpenAdjustModal = (item: InventoryItem) => {
@@ -112,21 +116,26 @@ export const InventoryPage: React.FC = () => {
     setIsAdjustModalOpen(true);
   };
 
-  const handleSaveAdjustment = (e: React.FormEvent) => {
+  const handleSaveAdjustment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!adjustingItem || adjustForm.quantity <= 0) return;
+    if (!adjustingItem || adjustForm.quantity < 0) return;
+    if (adjustForm.type !== 'adjustment' && adjustForm.quantity <= 0) return;
 
-    backend.adjustStock(
-      caller,
-      restId,
-      adjustingItem.id,
-      adjustForm.type,
-      Number(adjustForm.quantity),
-      adjustForm.reason.trim()
-    );
+    try {
+      await backend.adjustStock(
+        caller,
+        restId,
+        adjustingItem.id,
+        adjustForm.type,
+        Number(adjustForm.quantity),
+        adjustForm.reason.trim()
+      );
 
-    setIsAdjustModalOpen(false);
-    showToast(`Stock updated for ${adjustingItem.name}`, 'success');
+      setIsAdjustModalOpen(false);
+      showToast(`Stock updated for ${adjustingItem.name}`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to adjust stock', 'error');
+    }
   };
 
   return (

@@ -15,6 +15,7 @@ export const OrdersPage: React.FC = () => {
   const caller = {
     restaurantId: restId,
     role: currentUser?.role || 'cashier',
+    userId: currentUser?.id || '',
     name: currentUser?.name || 'Staff'
   };
 
@@ -53,12 +54,12 @@ export const OrdersPage: React.FC = () => {
     return matchQuery && matchStatus && matchType;
   });
 
-  const handleConfirmCancel = (e: React.FormEvent) => {
+  const handleConfirmCancel = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cancellingOrder || !cancellationReason.trim()) return;
 
     try {
-      backend.cancelOrder(caller, restId, cancellingOrder.id, cancellationReason.trim());
+      await backend.cancelOrder(caller, restId, cancellingOrder.id, cancellationReason.trim());
       showToast(`Order #${cancellingOrder.orderNumber} cancelled with audit trail recorded.`, 'info');
       setCancellingOrder(null);
       setCancellationReason('');

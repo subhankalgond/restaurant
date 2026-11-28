@@ -37,34 +37,33 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
     return backend.subscribe(loadData);
   }, [restId]);
 
-  // Real Database Metrics
+  // Real Database Metrics (only count non-cancelled, paid orders for revenue)
   const todayStr = new Date().toDateString();
   const todayOrders = orders.filter(o => new Date(o.createdAt).toDateString() === todayStr);
-  const todaySales = todayOrders
-    .filter(o => o.orderStatus !== 'cancelled')
-    .reduce((sum, o) => sum + o.finalTotal, 0);
+  const todayPaidOrders = todayOrders.filter(o => o.orderStatus !== 'cancelled' && o.paymentStatus === 'paid');
+  const todaySales = todayPaidOrders.reduce((sum, o) => sum + o.finalTotal, 0);
 
   const pendingOrders = orders.filter(o => o.orderStatus === 'new' || o.orderStatus === 'preparing');
   const completedOrders = orders.filter(o => o.orderStatus === 'completed');
   const cancelledOrders = orders.filter(o => o.orderStatus === 'cancelled');
-  const avgBill = todayOrders.length > 0 ? Math.round(todaySales / todayOrders.length) : 0;
+  const avgBill = todayPaidOrders.length > 0 ? Math.round(todaySales / todayPaidOrders.length) : 0;
 
   // Past 7 days sales
   const pastWeekDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const weeklySales = orders
-    .filter(o => new Date(o.createdAt) >= pastWeekDate && o.orderStatus !== 'cancelled')
+    .filter(o => new Date(o.createdAt) >= pastWeekDate && o.orderStatus !== 'cancelled' && o.paymentStatus === 'paid')
     .reduce((sum, o) => sum + o.finalTotal, 0);
 
   // Past 30 days sales
   const pastMonthDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const monthlySales = orders
-    .filter(o => new Date(o.createdAt) >= pastMonthDate && o.orderStatus !== 'cancelled')
+    .filter(o => new Date(o.createdAt) >= pastMonthDate && o.orderStatus !== 'cancelled' && o.paymentStatus === 'paid')
     .reduce((sum, o) => sum + o.finalTotal, 0);
 
   // Payment Breakdown
   const paymentBreakdown = orders.reduce(
     (acc, o) => {
-      if (o.orderStatus === 'cancelled') return acc;
+      if (o.orderStatus === 'cancelled' || o.paymentStatus !== 'paid') return acc;
       const m = o.paymentMethod || 'cash';
       if (m === 'cash') acc.cash += o.finalTotal;
       else if (m === 'upi') acc.upi += o.finalTotal;

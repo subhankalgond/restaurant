@@ -14,13 +14,14 @@ export type RestaurantType =
 
 export type OrderType = 'dine_in' | 'takeaway' | 'delivery';
 export type OrderStatus = 'new' | 'preparing' | 'ready' | 'completed' | 'cancelled';
-export type PaymentMethod = 'cash' | 'upi' | 'card' | 'other';
+export type PaymentMethod = 'cash' | 'upi' | 'card' | 'other' | 'unpaid';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'refunded';
 export type TableStatus = 'available' | 'occupied' | 'reserved' | 'billing';
 
 export interface User {
   id: string;
+  authUserId?: string;
   email: string;
-  passwordHash: string;
   name: string;
   phone?: string;
   role: Role;
@@ -120,14 +121,31 @@ export interface Order {
   serviceChargeAmount: number;
   finalTotal: number;
   paymentMethod?: PaymentMethod;
-  paymentStatus: 'pending' | 'paid' | 'cancelled';
+  paymentStatus: PaymentStatus;
+  paymentReference?: string;
   orderStatus: OrderStatus;
   cancellationReason?: string;
   specialInstructions?: string;
   cashierId: string;
   cashierName: string;
+  clientOperationId?: string;
   createdAt: string;
   completedAt?: string;
+  updatedAt?: string;
+}
+
+export interface PaymentTransaction {
+  id: string;
+  restaurantId: string;
+  orderId: string;
+  amount: number;
+  paymentMethod: Exclude<PaymentMethod, 'unpaid'>;
+  paymentStatus: PaymentStatus;
+  referenceNumber?: string;
+  confirmedBy: string;
+  notes?: string;
+  idempotencyKey?: string;
+  createdAt: string;
 }
 
 export interface RestaurantTable {
@@ -143,6 +161,7 @@ export interface InventoryItem {
   id: string;
   restaurantId: string;
   name: string;
+  category?: string;
   unit: string; // kg, g, l, pcs, packs
   currentStock: number;
   minimumStock: number;

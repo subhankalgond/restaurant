@@ -68,10 +68,14 @@ export const MenuPage: React.FC = () => {
     return matchCat && matchSearch;
   });
 
-  const handleToggleAvailability = (item: MenuItem) => {
+  const handleToggleAvailability = async (item: MenuItem) => {
     const updated: MenuItem = { ...item, isAvailable: !item.isAvailable };
-    backend.saveMenuItem(caller, updated);
-    showToast(`${item.name} marked ${updated.isAvailable ? 'Available' : 'Unavailable'}`);
+    try {
+      await backend.saveMenuItem(caller, updated);
+      showToast(`${item.name} marked ${updated.isAvailable ? 'Available' : 'Unavailable'}`);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to update availability', 'error');
+    }
   };
 
   const handleOpenItemModal = (item?: MenuItem) => {
@@ -107,7 +111,7 @@ export const MenuPage: React.FC = () => {
     setIsItemModalOpen(true);
   };
 
-  const handleSaveItem = (e: React.FormEvent) => {
+  const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!itemForm.name.trim()) return;
 
@@ -127,19 +131,27 @@ export const MenuPage: React.FC = () => {
       createdAt: editingItem ? editingItem.createdAt : new Date().toISOString()
     };
 
-    backend.saveMenuItem(caller, toSave);
-    setIsItemModalOpen(false);
-    showToast(editingItem ? 'Item updated' : 'New menu item created', 'success');
-  };
-
-  const handleDeleteItem = (id: string, name: string) => {
-    if (window.confirm(`Delete "${name}" from menu?`)) {
-      backend.deleteMenuItem(caller, restId, id);
-      showToast(`Deleted ${name}`, 'info');
+    try {
+      await backend.saveMenuItem(caller, toSave);
+      setIsItemModalOpen(false);
+      showToast(editingItem ? 'Item updated' : 'New menu item created', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save menu item', 'error');
     }
   };
 
-  const handleSaveCategory = (e: React.FormEvent) => {
+  const handleDeleteItem = async (id: string, name: string) => {
+    if (window.confirm(`Delete "${name}" from menu?`)) {
+      try {
+        await backend.deleteMenuItem(caller, restId, id);
+        showToast(`Deleted ${name}`, 'info');
+      } catch (err: any) {
+        showToast(err.message || 'Failed to delete item', 'error');
+      }
+    }
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryNameInput.trim()) return;
 
@@ -152,15 +164,19 @@ export const MenuPage: React.FC = () => {
       isActive: true
     };
 
-    backend.saveCategory(caller, newCat);
-    setIsCategoryModalOpen(false);
-    setCategoryNameInput('');
-    showToast('New category added', 'success');
+    try {
+      await backend.saveCategory(caller, newCat);
+      setIsCategoryModalOpen(false);
+      setCategoryNameInput('');
+      showToast('New category added', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to add category', 'error');
+    }
   };
 
-  const handleDeleteCategory = (id: string, name: string) => {
+  const handleDeleteCategory = async (id: string, name: string) => {
     try {
-      backend.deleteCategory(caller, restId, id);
+      await backend.deleteCategory(caller, restId, id);
       showToast(`Category "${name}" removed`, 'info');
     } catch (err: any) {
       showToast(err.message, 'error');

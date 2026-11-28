@@ -48,7 +48,7 @@ export const ReportsPage: React.FC = () => {
     return true;
   });
 
-  const validOrders = filteredOrders.filter(o => o.orderStatus !== 'cancelled');
+  const validOrders = filteredOrders.filter(o => o.orderStatus !== 'cancelled' && o.paymentStatus === 'paid');
   const cancelledOrders = filteredOrders.filter(o => o.orderStatus === 'cancelled');
 
   const totalGross = validOrders.reduce((sum, o) => sum + o.finalTotal, 0);
@@ -139,41 +139,37 @@ export const ReportsPage: React.FC = () => {
       <div className="flex items-center gap-2 mt-4 pb-1 text-xs overflow-x-auto">
         <button
           onClick={() => setActiveTab('sales')}
-          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${
-            activeTab === 'sales'
-              ? 'bg-[#078F36] text-white shadow-2xs'
-              : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
-          }`}
+          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${activeTab === 'sales'
+            ? 'bg-[#078F36] text-white shadow-2xs'
+            : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
+            }`}
         >
           Sales Summary
         </button>
         <button
           onClick={() => setActiveTab('products')}
-          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${
-            activeTab === 'products'
-              ? 'bg-[#078F36] text-white shadow-2xs'
-              : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
-          }`}
+          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${activeTab === 'products'
+            ? 'bg-[#078F36] text-white shadow-2xs'
+            : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
+            }`}
         >
           Product Breakdown
         </button>
         <button
           onClick={() => setActiveTab('tax')}
-          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${
-            activeTab === 'tax'
-              ? 'bg-[#078F36] text-white shadow-2xs'
-              : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
-          }`}
+          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${activeTab === 'tax'
+            ? 'bg-[#078F36] text-white shadow-2xs'
+            : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
+            }`}
         >
           GST Tax Report
         </button>
         <button
           onClick={() => setActiveTab('cancelled')}
-          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${
-            activeTab === 'cancelled'
-              ? 'bg-[#078F36] text-white shadow-2xs'
-              : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
-          }`}
+          className={`px-3.5 py-1.5 rounded-xl font-bold transition-colors ${activeTab === 'cancelled'
+            ? 'bg-[#078F36] text-white shadow-2xs'
+            : 'bg-white border border-[#E7EBE8] text-[#171B18] hover:bg-gray-50'
+            }`}
         >
           Cancelled Bills ({cancelledOrders.length})
         </button>

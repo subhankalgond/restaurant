@@ -9,7 +9,7 @@ interface LoginPageProps {
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
-  const { login } = useAuth();
+  const { login, requestPasswordReset, isSupabaseReady, authError } = useAuth();
   const { showToast } = useToast();
 
   const [email, setEmail] = useState('');
@@ -37,14 +37,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
     }
   };
 
-  const handleForgotSubmit = (e: React.FormEvent) => {
+  const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetEmail.trim()) {
       showToast('Enter your registered email address', 'error');
       return;
     }
-    setResetSuccess(true);
-    showToast('Password reset link sent to ' + resetEmail, 'success');
+    try {
+      await requestPasswordReset(resetEmail.trim());
+      setResetSuccess(true);
+      showToast('Password reset link sent to ' + resetEmail, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to send password reset email.', 'error');
+    }
   };
 
   return (
@@ -66,6 +71,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        {(!isSupabaseReady || authError) && (
+          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-[#D94A43] font-medium">
+            {authError || 'Supabase environment variables are missing. Configure .env before signing in.'}
+          </div>
+        )}
         <div className="bg-white py-8 px-6 shadow-sm border border-[#E7EBE8] rounded-2xl sm:px-10">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
@@ -139,9 +149,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigateRegister }) => {
         </div>
 
         <div className="mt-6 text-center text-xs text-[#777F79] flex justify-center gap-4">
-          <span>Protected by SHA-256 Auth</span>
+          <span>Secured by Supabase Auth</span>
           <span>•</span>
-          <span>Brute Force Throttling</span>
+          <span>Row-Level Security</span>
           <span>•</span>
           <span>Tenant Separation</span>
         </div>

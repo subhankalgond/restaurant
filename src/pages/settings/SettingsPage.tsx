@@ -32,7 +32,7 @@ export const SettingsPage: React.FC = () => {
 
   const [printerPaper, setPrinterPaper] = useState('80mm');
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentRestaurant) return;
 
@@ -54,8 +54,8 @@ export const SettingsPage: React.FC = () => {
         currencySymbol: form.currencySymbol.trim()
       };
 
-      backend.updateRestaurantSettings(caller, updated);
-      refreshSession();
+      await backend.updateRestaurantSettings(caller, updated);
+      await refreshSession();
       showToast('Restaurant profile & billing settings saved', 'success');
     } catch (err: any) {
       showToast(err.message, 'error');

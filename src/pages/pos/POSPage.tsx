@@ -3,22 +3,22 @@ import QRCode from 'qrcode';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { backend } from '../../db/backendService';
-import { 
-  MenuItem, 
-  MenuCategory, 
-  OrderItem, 
-  OrderType, 
-  RestaurantTable, 
+import {
+  MenuItem,
+  MenuCategory,
+  OrderItem,
+  OrderType,
+  RestaurantTable,
   PaymentMethod,
   Order,
   MenuItemVariant,
   MenuItemAddOn
 } from '../../types';
-import { 
-  SearchIcon, 
+import {
+  SearchIcon,
   FilterSlidersIcon,
-  CloseIcon, 
-  CheckIcon, 
+  CloseIcon,
+  CheckIcon,
   TrashIcon,
   PlusIcon,
   MinusIcon,
@@ -135,6 +135,10 @@ export const POSPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [cashTendered, setCashTendered] = useState<number>(0);
   const [upiQrDataUrl, setUpiQrDataUrl] = useState<string>('');
+  const [paymentConfirmed, setPaymentConfirmed] = useState<boolean>(false);
+  const [paymentReference, setPaymentReference] = useState<string>('');
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState<boolean>(false);
+  const [checkoutOperationId, setCheckoutOperationId] = useState<string>('');
 
   // Three-copy print trigger after order
   const [confirmedOrderToPrint, setConfirmedOrderToPrint] = useState<Order | null>(null);
@@ -195,7 +199,7 @@ export const POSPage: React.FC = () => {
     const matchCat = selectedCategory === 'all' || item.categoryId === selectedCategory;
     const matchDiet = dietaryFilter === 'all' || item.itemType === dietaryFilter;
     const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchCat && matchDiet && matchSearch;
   });
 
@@ -312,7 +316,7 @@ export const POSPage: React.FC = () => {
     showToast(`Resumed bill: ${hold.label}`, 'success');
   };
 
-  // Open Payment Modal & generate real UPI QR
+  // Open Payment Modal & generate real UPI QR only when merchant UPI ID is configured
   const handleOpenPayment = async () => {
     if (cart.length === 0) {
       showToast('Cart is empty. Select items to bill.', 'warning');
@@ -322,25 +326,50 @@ export const POSPage: React.FC = () => {
       showToast('Please select a dining table for Dine-in orders', 'warning');
       return;
     }
+    if (discountAmount < 0 || discountAmount > subtotal) {
+      showToast('Discount cannot be negative or exceed subtotal.', 'warning');
+      return;
+    }
 
     setCashTendered(grandTotal);
+    setPaymentConfirmed(false);
+    setPaymentReference('');
+    setCheckoutOperationId(`op_ord_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
 
-    // Format real UPI payload
-    const upiId = currentRestaurant?.upiId || 'payment@bank';
-    const upiPayload = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(currentRestaurant?.name || 'Restaurant')}&am=${grandTotal}&cu=INR&tn=DineFlow Order`;
-
-    try {
-      const qrData = await QRCode.toDataURL(upiPayload, { width: 220, margin: 1 });
-      setUpiQrDataUrl(qrData);
-    } catch (e) {
-      console.error('Error generating UPI QR code:', e);
+    const configuredUpiId = currentRestaurant?.upiId?.trim();
+    if (configuredUpiId) {
+      const upiPayload = `upi://pay?pa=${encodeURIComponent(configuredUpiId)}&pn=${encodeURIComponent(currentRestaurant?.name || 'Restaurant')}&am=${grandTotal}&cu=INR&tn=Restaurant Order`;
+      try {
+        const qrData = await QRCode.toDataURL(upiPayload, { width: 220, margin: 1 });
+        setUpiQrDataUrl(qrData);
+      } catch (e) {
+        console.error('Error generating UPI QR code:', e);
+        setUpiQrDataUrl('');
+      }
+    } else {
+      setUpiQrDataUrl('');
     }
 
     setIsPaymentModalOpen(true);
   };
 
-  // Confirm order execution
-  const handleFinalizeOrder = () => {
+  // Confirm order execution (atomic & idempotent)
+  const handleFinalizeOrder = async () => {
+    if (isSubmittingOrder) return;
+
+    if (paymentMethod === 'upi' && !currentRestaurant?.upiId?.trim()) {
+      showToast('Merchant UPI ID is not configured. Configure it in Settings first.', 'error');
+      return;
+    }
+    if (paymentMethod === 'cash' && cashTendered < grandTotal) {
+      showToast('Cash tendered must be at least the grand total.', 'warning');
+      return;
+    }
+    if (paymentMethod !== 'unpaid' && !paymentConfirmed) {
+      showToast('Please confirm that payment has been received before settling.', 'warning');
+      return;
+    }
+
     const table = tables.find(t => t.id === selectedTableId);
     const orderNumber = 'ORD-' + Math.floor(100 + Math.random() * 900);
 
@@ -363,30 +392,44 @@ export const POSPage: React.FC = () => {
       serviceChargeAmount,
       finalTotal: grandTotal,
       paymentMethod,
-      paymentStatus: 'paid',
+      paymentStatus: paymentMethod === 'unpaid' ? 'pending' : 'paid',
+      paymentReference: paymentReference.trim() || undefined,
       orderStatus: 'new',
       specialInstructions: specialInstructions.trim() || undefined,
-      cashierId: currentUser?.id || 'usr_cashier',
+      cashierId: currentUser?.id || '',
       cashierName: currentUser?.name || 'Cashier',
+      clientOperationId: checkoutOperationId,
       createdAt: new Date().toISOString()
     };
 
-    const saved = backend.createOrder(caller, newOrder);
+    setIsSubmittingOrder(true);
+    try {
+      const { order: saved, queuedOffline } = await backend.createOrder(caller, newOrder);
 
-    // Reset cart
-    setCart([]);
-    setCustomerName('');
-    setCustomerPhone('');
-    setSpecialInstructions('');
-    setDiscountAmount(0);
-    setIsPaymentModalOpen(false);
+      // Reset cart
+      setCart([]);
+      setCustomerName('');
+      setCustomerPhone('');
+      setSpecialInstructions('');
+      setDiscountAmount(0);
+      setIsPaymentModalOpen(false);
 
-    showToast(`Order #${saved.orderNumber} placed successfully!`, 'success');
-    setConfirmedOrderToPrint(saved);
+      showToast(
+        queuedOffline
+          ? `Order queued offline (${saved.invoiceNumber}). Will sync when online.`
+          : `Order #${saved.orderNumber} placed successfully!`,
+        queuedOffline ? 'info' : 'success'
+      );
+      setConfirmedOrderToPrint(saved);
+    } catch (err: any) {
+      showToast(err.message || 'Failed to place order. Please try again.', 'error');
+    } finally {
+      setIsSubmittingOrder(false);
+    }
   };
 
   // Add Dish
-  const handleCreateDish = (e: React.FormEvent) => {
+  const handleCreateDish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDishName.trim() || !newDishCategory || newDishPrice <= 0) {
       showToast('Please fill all required dish details', 'warning');
@@ -408,17 +451,21 @@ export const POSPage: React.FC = () => {
       createdAt: new Date().toISOString()
     };
 
-    backend.saveMenuItem(caller, newItem);
-    loadData();
-    setIsAddDishModalOpen(false);
-    setNewDishName('');
-    setNewDishPrice(150);
-    setNewDishDescription('');
-    showToast(`"${newItem.name}" added to menu successfully!`, 'success');
+    try {
+      await backend.saveMenuItem(caller, newItem);
+      loadData();
+      setIsAddDishModalOpen(false);
+      setNewDishName('');
+      setNewDishPrice(150);
+      setNewDishDescription('');
+      showToast(`"${newItem.name}" added to menu successfully!`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save dish.', 'error');
+    }
   };
 
   // Add Category
-  const handleCreateCategory = (e: React.FormEvent) => {
+  const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCategoryName.trim()) return;
 
@@ -431,11 +478,15 @@ export const POSPage: React.FC = () => {
       isActive: true
     };
 
-    backend.saveCategory(caller, newCat);
-    loadData();
-    setIsAddCategoryModalOpen(false);
-    setNewCategoryName('');
-    showToast(`Category "${newCat.name}" added!`, 'success');
+    try {
+      await backend.saveCategory(caller, newCat);
+      loadData();
+      setIsAddCategoryModalOpen(false);
+      setNewCategoryName('');
+      showToast(`Category "${newCat.name}" added!`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to add category.', 'error');
+    }
   };
 
   return (
@@ -470,11 +521,10 @@ export const POSPage: React.FC = () => {
                 else setDietaryFilter('all');
               }}
               title={`Filter: ${dietaryFilter.toUpperCase()}`}
-              className={`p-2.5 rounded-xl border flex items-center justify-center transition-colors shadow-2xs ${
-                dietaryFilter !== 'all'
-                  ? 'bg-[#078F36] text-white border-[#078F36]'
-                  : 'bg-white text-[#777F79] hover:text-[#171B18] border-[#E7EBE8]'
-              }`}
+              className={`p-2.5 rounded-xl border flex items-center justify-center transition-colors shadow-2xs ${dietaryFilter !== 'all'
+                ? 'bg-[#078F36] text-white border-[#078F36]'
+                : 'bg-white text-[#777F79] hover:text-[#171B18] border-[#E7EBE8]'
+                }`}
             >
               <FilterSlidersIcon className="w-4 h-4" />
             </button>
@@ -516,11 +566,10 @@ export const POSPage: React.FC = () => {
           {/* "All" Category Card */}
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`flex flex-col items-center justify-center min-w-[90px] h-[78px] px-3 rounded-2xl transition-all duration-150 flex-shrink-0 border ${
-              selectedCategory === 'all'
-                ? 'bg-[#D8EFDF] border-[#D8EFDF] shadow-xs'
-                : 'bg-white border-[#E7EBE8] hover:border-gray-300'
-            }`}
+            className={`flex flex-col items-center justify-center min-w-[90px] h-[78px] px-3 rounded-2xl transition-all duration-150 flex-shrink-0 border ${selectedCategory === 'all'
+              ? 'bg-[#D8EFDF] border-[#D8EFDF] shadow-xs'
+              : 'bg-white border-[#E7EBE8] hover:border-gray-300'
+              }`}
           >
             <CategoryAllIcon className={`w-5 h-5 mb-1 ${selectedCategory === 'all' ? 'text-[#078F36]' : 'text-[#777F79]'}`} />
             <span className={`text-xs font-bold ${selectedCategory === 'all' ? 'text-[#078F36]' : 'text-[#171B18]'}`}>
@@ -541,11 +590,10 @@ export const POSPage: React.FC = () => {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`flex flex-col items-center justify-center min-w-[90px] h-[78px] px-3 rounded-2xl transition-all duration-150 flex-shrink-0 border ${
-                  isSelected
-                    ? 'bg-[#D8EFDF] border-[#D8EFDF] shadow-xs'
-                    : 'bg-white border-[#E7EBE8] hover:border-gray-300'
-                }`}
+                className={`flex flex-col items-center justify-center min-w-[90px] h-[78px] px-3 rounded-2xl transition-all duration-150 flex-shrink-0 border ${isSelected
+                  ? 'bg-[#D8EFDF] border-[#D8EFDF] shadow-xs'
+                  : 'bg-white border-[#E7EBE8] hover:border-gray-300'
+                  }`}
               >
                 <Icon className={`w-5 h-5 mb-1 ${isSelected ? 'text-[#078F36]' : 'text-[#777F79]'}`} />
                 <span className={`text-xs font-bold truncate max-w-[80px] ${isSelected ? 'text-[#078F36]' : 'text-[#171B18]'}`}>
@@ -588,9 +636,8 @@ export const POSPage: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-2xl p-3 border transition-all duration-150 flex flex-col justify-between shadow-2xs hover:shadow-xs ${
-                    isSelected ? 'border-[#078F36] ring-1 ring-[#078F36]' : 'border-[#E7EBE8]'
-                  }`}
+                  className={`bg-white rounded-2xl p-3 border transition-all duration-150 flex flex-col justify-between shadow-2xs hover:shadow-xs ${isSelected ? 'border-[#078F36] ring-1 ring-[#078F36]' : 'border-[#E7EBE8]'
+                    }`}
                 >
                   <div>
                     {/* Food Photo Container */}
@@ -624,9 +671,8 @@ export const POSPage: React.FC = () => {
                       </span>
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`w-2 h-2 rounded-full ${
-                            item.itemType === 'veg' ? 'bg-[#078F36]' : 'bg-[#D94A43]'
-                          }`}
+                          className={`w-2 h-2 rounded-full ${item.itemType === 'veg' ? 'bg-[#078F36]' : 'bg-[#D94A43]'
+                            }`}
                         />
                         <span className="text-[10px] text-[#777F79] font-medium capitalize">
                           {item.itemType === 'veg' ? 'Veg' : 'Non Veg'}
@@ -725,7 +771,7 @@ export const POSPage: React.FC = () => {
         <div className="p-4 border-b border-[#E7EBE8] flex items-center justify-between">
           <div>
             <h3 className="font-extrabold text-base text-[#171B18]">
-              {orderType === 'dine_in' 
+              {orderType === 'dine_in'
                 ? (selectedTable ? `Table ${selectedTable.tableNumber}` : 'Table 4')
                 : (orderType === 'takeaway' ? 'Take Away' : 'Delivery')}
             </h3>
@@ -787,31 +833,28 @@ export const POSPage: React.FC = () => {
           <div className="grid grid-cols-3 gap-1 bg-[#F5F6F5] p-1 rounded-xl border border-[#E7EBE8] text-xs font-semibold">
             <button
               onClick={() => setOrderType('dine_in')}
-              className={`py-1.5 rounded-lg text-center transition-all ${
-                orderType === 'dine_in'
-                  ? 'bg-[#D8EFDF] text-[#078F36] font-bold shadow-2xs'
-                  : 'text-[#777F79] hover:text-[#171B18]'
-              }`}
+              className={`py-1.5 rounded-lg text-center transition-all ${orderType === 'dine_in'
+                ? 'bg-[#D8EFDF] text-[#078F36] font-bold shadow-2xs'
+                : 'text-[#777F79] hover:text-[#171B18]'
+                }`}
             >
               Dine In
             </button>
             <button
               onClick={() => setOrderType('takeaway')}
-              className={`py-1.5 rounded-lg text-center transition-all ${
-                orderType === 'takeaway'
-                  ? 'bg-[#D8EFDF] text-[#078F36] font-bold shadow-2xs'
-                  : 'text-[#777F79] hover:text-[#171B18]'
-              }`}
+              className={`py-1.5 rounded-lg text-center transition-all ${orderType === 'takeaway'
+                ? 'bg-[#D8EFDF] text-[#078F36] font-bold shadow-2xs'
+                : 'text-[#777F79] hover:text-[#171B18]'
+                }`}
             >
               Take Away
             </button>
             <button
               onClick={() => setOrderType('delivery')}
-              className={`py-1.5 rounded-lg text-center transition-all ${
-                orderType === 'delivery'
-                  ? 'bg-[#D8EFDF] text-[#078F36] font-bold shadow-2xs'
-                  : 'text-[#777F79] hover:text-[#171B18]'
-              }`}
+              className={`py-1.5 rounded-lg text-center transition-all ${orderType === 'delivery'
+                ? 'bg-[#D8EFDF] text-[#078F36] font-bold shadow-2xs'
+                : 'text-[#777F79] hover:text-[#171B18]'
+                }`}
             >
               Delivery
             </button>
@@ -908,7 +951,7 @@ export const POSPage: React.FC = () => {
                 <span className="font-semibold text-[#171B18]">{currency}{serviceChargeAmount.toFixed(2)}</span>
               </div>
             )}
-            
+
             {/* Dashed divider line */}
             <div className="border-t border-dashed border-[#E7EBE8] pt-2 flex justify-between items-center">
               <span className="font-extrabold text-sm text-[#171B18]">Total Amount</span>
@@ -922,11 +965,10 @@ export const POSPage: React.FC = () => {
           <div className="grid grid-cols-3 gap-2 pt-1">
             <button
               onClick={() => setPaymentMethod('cash')}
-              className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
-                paymentMethod === 'cash'
-                  ? 'bg-[#F0F8F3] border-[#078F36] text-[#078F36] font-bold'
-                  : 'bg-white border-[#E7EBE8] text-[#777F79] hover:border-gray-300'
-              }`}
+              className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${paymentMethod === 'cash'
+                ? 'bg-[#F0F8F3] border-[#078F36] text-[#078F36] font-bold'
+                : 'bg-white border-[#E7EBE8] text-[#777F79] hover:border-gray-300'
+                }`}
             >
               <CashBillIcon className="w-5 h-5" />
               <span className="text-[10px]">Cash</span>
@@ -934,11 +976,10 @@ export const POSPage: React.FC = () => {
 
             <button
               onClick={() => setPaymentMethod('card')}
-              className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
-                paymentMethod === 'card'
-                  ? 'bg-[#F0F8F3] border-[#078F36] text-[#078F36] font-bold'
-                  : 'bg-white border-[#E7EBE8] text-[#777F79] hover:border-gray-300'
-              }`}
+              className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${paymentMethod === 'card'
+                ? 'bg-[#F0F8F3] border-[#078F36] text-[#078F36] font-bold'
+                : 'bg-white border-[#E7EBE8] text-[#777F79] hover:border-gray-300'
+                }`}
             >
               <CardPaymentIcon className="w-5 h-5" />
               <span className="text-[10px] leading-tight text-center">Credit/Debit Card</span>
@@ -946,11 +987,10 @@ export const POSPage: React.FC = () => {
 
             <button
               onClick={() => setPaymentMethod('upi')}
-              className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
-                paymentMethod === 'upi'
-                  ? 'bg-[#F0F8F3] border-[#078F36] text-[#078F36] font-bold'
-                  : 'bg-white border-[#E7EBE8] text-[#777F79] hover:border-gray-300'
-              }`}
+              className={`py-2 px-1 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${paymentMethod === 'upi'
+                ? 'bg-[#F0F8F3] border-[#078F36] text-[#078F36] font-bold'
+                : 'bg-white border-[#E7EBE8] text-[#777F79] hover:border-gray-300'
+                }`}
             >
               <QrCodeIcon className="w-5 h-5" />
               <span className="text-[10px]">QR Code</span>
@@ -1019,11 +1059,10 @@ export const POSPage: React.FC = () => {
                       <button
                         key={v.id}
                         onClick={() => setSelectedVariant(v)}
-                        className={`p-2.5 rounded-xl border text-left flex justify-between ${
-                          selectedVariant?.id === v.id
-                            ? 'border-[#078F36] bg-[#F0F8F3] font-bold text-[#078F36]'
-                            : 'border-[#E7EBE8] text-[#171B18]'
-                        }`}
+                        className={`p-2.5 rounded-xl border text-left flex justify-between ${selectedVariant?.id === v.id
+                          ? 'border-[#078F36] bg-[#F0F8F3] font-bold text-[#078F36]'
+                          : 'border-[#E7EBE8] text-[#171B18]'
+                          }`}
                       >
                         <span>{v.name}</span>
                         <span>{v.priceDelta > 0 ? `+${currency}${v.priceDelta}` : 'Default'}</span>
@@ -1050,11 +1089,10 @@ export const POSPage: React.FC = () => {
                               setSelectedAddOns([...selectedAddOns, addon]);
                             }
                           }}
-                          className={`w-full p-2.5 rounded-xl border text-left flex justify-between ${
-                            isSelected
-                              ? 'border-[#078F36] bg-[#F0F8F3] font-bold text-[#078F36]'
-                              : 'border-[#E7EBE8] text-[#171B18]'
-                          }`}
+                          className={`w-full p-2.5 rounded-xl border text-left flex justify-between ${isSelected
+                            ? 'border-[#078F36] bg-[#F0F8F3] font-bold text-[#078F36]'
+                            : 'border-[#E7EBE8] text-[#171B18]'
+                            }`}
                         >
                           <span>{addon.name}</span>
                           <span>+{currency}{addon.price}</span>
@@ -1114,18 +1152,21 @@ export const POSPage: React.FC = () => {
 
             <div className="p-5 space-y-4 text-xs">
               {/* Payment Methods */}
-              <div className="grid grid-cols-4 gap-2">
-                {(['cash', 'upi', 'card', 'other'] as const).map(m => (
+              <div className="grid grid-cols-5 gap-1.5">
+                {(['cash', 'upi', 'card', 'other', 'unpaid'] as const).map(m => (
                   <button
                     key={m}
-                    onClick={() => setPaymentMethod(m)}
-                    className={`py-2.5 rounded-xl border text-center font-bold uppercase transition-colors ${
-                      paymentMethod === m
-                        ? 'border-[#078F36] bg-[#F0F8F3] text-[#078F36]'
-                        : 'border-[#E7EBE8] text-[#777F79]'
-                    }`}
+                    type="button"
+                    onClick={() => {
+                      setPaymentMethod(m);
+                      setPaymentConfirmed(m === 'unpaid');
+                    }}
+                    className={`py-2 rounded-xl border text-center font-bold uppercase text-[10px] transition-colors ${paymentMethod === m
+                      ? 'border-[#078F36] bg-[#F0F8F3] text-[#078F36]'
+                      : 'border-[#E7EBE8] text-[#777F79]'
+                      }`}
                   >
-                    {m === 'upi' ? 'QR Code' : m}
+                    {m === 'upi' ? 'QR Code' : m === 'unpaid' ? 'Pay Later' : m}
                   </button>
                 ))}
               </div>
@@ -1137,6 +1178,7 @@ export const POSPage: React.FC = () => {
                     <span className="font-bold">Cash Tendered:</span>
                     <input
                       type="number"
+                      min={0}
                       value={cashTendered}
                       onChange={(e) => setCashTendered(parseFloat(e.target.value) || 0)}
                       className="w-32 px-3 py-1.5 bg-white border border-[#E7EBE8] rounded-lg font-bold text-right text-sm focus:outline-none focus:border-[#078F36]"
@@ -1153,44 +1195,106 @@ export const POSPage: React.FC = () => {
 
               {paymentMethod === 'upi' && (
                 <div className="flex flex-col items-center justify-center p-4 bg-[#F5F6F5] rounded-xl border border-[#E7EBE8]">
-                  <span className="text-[11px] font-bold text-[#171B18] mb-2">Scan QR Code to Pay</span>
-                  {upiQrDataUrl ? (
-                    <img src={upiQrDataUrl} alt="UPI QR" className="w-44 h-44 rounded-xl border border-[#E7EBE8] bg-white p-2" />
+                  {currentRestaurant?.upiId ? (
+                    <>
+                      <span className="text-[11px] font-bold text-[#171B18] mb-2">Scan Merchant QR Code to Pay</span>
+                      {upiQrDataUrl ? (
+                        <img src={upiQrDataUrl} alt="UPI QR" className="w-40 h-40 rounded-xl border border-[#E7EBE8] bg-white p-2" />
+                      ) : (
+                        <div className="w-40 h-40 bg-white flex items-center justify-center text-[#777F79]">Generating QR...</div>
+                      )}
+                      <span className="text-[10px] text-[#777F79] mt-2 font-mono">UPI ID: {currentRestaurant.upiId}</span>
+                      <input
+                        type="text"
+                        placeholder="UPI Ref / UTR (optional)"
+                        value={paymentReference}
+                        onChange={(e) => setPaymentReference(e.target.value)}
+                        className="mt-2.5 w-full px-3 py-1.5 bg-white border border-[#E7EBE8] rounded-lg text-xs text-[#171B18]"
+                      />
+                    </>
                   ) : (
-                    <div className="w-44 h-44 bg-white flex items-center justify-center text-[#777F79]">Loading QR...</div>
+                    <div className="text-center py-4 space-y-1">
+                      <p className="font-bold text-xs text-[#D94A43]">Merchant UPI ID Not Configured</p>
+                      <p className="text-[11px] text-[#777F79]">
+                        Ask the restaurant owner to add a valid UPI ID in Settings before accepting UPI payments.
+                      </p>
+                    </div>
                   )}
-                  <span className="text-[10px] text-[#777F79] mt-2 font-mono">UPI ID: {currentRestaurant?.upiId || 'payment@bank'}</span>
                 </div>
               )}
 
               {paymentMethod === 'card' && (
-                <div className="bg-[#F5F6F5] p-5 rounded-xl border border-[#E7EBE8] text-center">
-                  <CardPaymentIcon className="w-8 h-8 text-[#078F36] mx-auto mb-2" />
+                <div className="bg-[#F5F6F5] p-4 rounded-xl border border-[#E7EBE8] text-center space-y-2.5">
+                  <CardPaymentIcon className="w-8 h-8 text-[#078F36] mx-auto" />
                   <p className="font-bold text-xs text-[#171B18]">Swipe, Dip or Tap Card on Terminal</p>
-                  <p className="text-[11px] text-[#777F79] mt-1">Confirm payment after authorization approval</p>
+                  <p className="text-[11px] text-[#777F79]">Confirm payment only after terminal approval</p>
+                  <input
+                    type="text"
+                    placeholder="Card Auth / Approval Code (optional)"
+                    value={paymentReference}
+                    onChange={(e) => setPaymentReference(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-white border border-[#E7EBE8] rounded-lg text-xs text-[#171B18]"
+                  />
                 </div>
               )}
 
               {paymentMethod === 'other' && (
-                <div className="bg-[#F5F6F5] p-5 rounded-xl border border-[#E7EBE8] text-center">
+                <div className="bg-[#F5F6F5] p-4 rounded-xl border border-[#E7EBE8] text-center space-y-2">
                   <p className="font-semibold text-xs text-[#171B18]">Other Tender (Cheque, Food Coupon, House Account)</p>
+                  <input
+                    type="text"
+                    placeholder="Reference / Voucher # (optional)"
+                    value={paymentReference}
+                    onChange={(e) => setPaymentReference(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-white border border-[#E7EBE8] rounded-lg text-xs text-[#171B18]"
+                  />
                 </div>
+              )}
+
+              {paymentMethod === 'unpaid' && (
+                <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center">
+                  <p className="font-bold text-xs text-amber-800">Order will be placed as Payment Pending</p>
+                  <p className="text-[11px] text-amber-700 mt-1">Table remains occupied until bill is settled.</p>
+                </div>
+              )}
+
+              {paymentMethod !== 'unpaid' && (
+                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-[#F0F8F3] border border-[#D8EFDF] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={paymentConfirmed}
+                    onChange={(e) => setPaymentConfirmed(e.target.checked)}
+                    className="rounded border-[#078F36] text-[#078F36] focus:ring-[#078F36]"
+                  />
+                  <span className="text-[11px] font-bold text-[#171B18]">
+                    I confirm {currency}{grandTotal} has been received via {paymentMethod.toUpperCase()}.
+                  </span>
+                </label>
               )}
             </div>
 
             <div className="p-4 bg-[#F5F6F5] border-t border-[#E7EBE8] flex justify-between items-center text-xs">
               <button
+                type="button"
+                disabled={isSubmittingOrder}
                 onClick={() => setIsPaymentModalOpen(false)}
-                className="px-4 py-2 border border-[#E7EBE8] rounded-xl bg-white font-semibold"
+                className="px-4 py-2 border border-[#E7EBE8] rounded-xl bg-white font-semibold disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
+                type="button"
+                disabled={
+                  isSubmittingOrder ||
+                  (paymentMethod !== 'unpaid' && !paymentConfirmed) ||
+                  (paymentMethod === 'upi' && !currentRestaurant?.upiId?.trim()) ||
+                  (paymentMethod === 'cash' && cashTendered < grandTotal)
+                }
                 onClick={handleFinalizeOrder}
-                className="px-5 py-2.5 bg-[#078F36] hover:bg-[#087A32] text-white rounded-xl font-bold shadow-md shadow-[#078F36]/20 flex items-center gap-1.5"
+                className="px-5 py-2.5 bg-[#078F36] hover:bg-[#087A32] disabled:opacity-50 text-white rounded-xl font-bold shadow-md shadow-[#078F36]/20 flex items-center gap-1.5"
               >
                 <CheckIcon className="w-4 h-4" />
-                <span>Confirm & Print Bill</span>
+                <span>{isSubmittingOrder ? 'Placing Order...' : 'Confirm & Print Bill'}</span>
               </button>
             </div>
           </div>

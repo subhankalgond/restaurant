@@ -11,6 +11,7 @@ export const SuperAdminPage: React.FC = () => {
 
   const caller = {
     role: currentUser?.role || 'superadmin',
+    userId: currentUser?.id || 'superadmin',
     name: currentUser?.name || 'Platform Admin'
   };
 
@@ -19,24 +20,30 @@ export const SuperAdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'accounts' | 'audit'>('accounts');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const loadData = () => {
+  const loadData = async () => {
     try {
-      setRestaurants(backend.getAllRestaurants(caller));
-      setAuditLogs(backend.getPlatformAuditLogs(caller));
+      const [rests, logs] = await Promise.all([
+        backend.getAllRestaurants(caller),
+        backend.getPlatformAuditLogs(caller)
+      ]);
+      setRestaurants(rests);
+      setAuditLogs(logs);
     } catch (e: any) {
-      console.error(e.message);
+      showToast(e.message || 'Failed to load platform data', 'error');
     }
   };
 
   useEffect(() => {
     loadData();
-    return backend.subscribe(loadData);
+    return backend.subscribe(() => {
+      loadData();
+    });
   }, []);
 
-  const handleToggleStatus = (rest: Restaurant) => {
+  const handleToggleStatus = async (rest: Restaurant) => {
     const nextStatus = rest.status === 'active' ? 'suspended' : 'active';
     try {
-      backend.setRestaurantStatus(caller, rest.id, nextStatus);
+      await backend.setRestaurantStatus(caller, rest.id, rest.name, rest.status, nextStatus);
       showToast(`Restaurant ${rest.name} status updated to ${nextStatus.toUpperCase()}`, 'info');
     } catch (err: any) {
       showToast(err.message, 'error');

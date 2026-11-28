@@ -12,8 +12,18 @@ export const PrintInvoiceModal: React.FC<PrintInvoiceModalProps> = ({ order, res
   const [activeCopy, setActiveCopy] = useState<'customer' | 'kitchen' | 'restaurant' | 'all'>('customer');
   const [paperWidth, setPaperWidth] = useState<'80mm' | '58mm'>('80mm');
 
+  const [printError, setPrintError] = useState<string | null>(null);
+
   const handlePrint = () => {
-    window.print();
+    setPrintError(null);
+    try {
+      if (typeof window.print !== 'function') {
+        throw new Error('Browser print dialog is unavailable in this environment.');
+      }
+      window.print();
+    } catch (err: any) {
+      setPrintError(err?.message || 'Failed to open print dialog.');
+    }
   };
 
   return (
@@ -88,6 +98,12 @@ export const PrintInvoiceModal: React.FC<PrintInvoiceModalProps> = ({ order, res
             </button>
           </div>
         </div>
+
+        {printError && (
+          <div className="px-4 py-2 bg-red-50 border-b border-red-200 text-xs text-[#D94A43] font-medium">
+            {printError}
+          </div>
+        )}
 
         {/* Printable Preview Container */}
         <div className="flex-1 overflow-y-auto p-6 bg-surface/40 flex justify-center">

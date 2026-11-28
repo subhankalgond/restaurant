@@ -32,9 +32,13 @@ export const KitchenDisplayPage: React.FC = () => {
     return backend.subscribe(loadData);
   }, [restId]);
 
-  const handleUpdateStatus = (order: Order, nextStatus: OrderStatus) => {
-    backend.updateOrderStatus(caller, restId, order.id, nextStatus);
-    showToast(`Order #${order.orderNumber} updated to ${nextStatus.toUpperCase()}`, 'success');
+  const handleUpdateStatus = async (order: Order, nextStatus: OrderStatus) => {
+    try {
+      await backend.updateOrderStatus(caller, restId, order.id, nextStatus);
+      showToast(`Order #${order.orderNumber} updated to ${nextStatus.toUpperCase()}`, 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to update kitchen order status', 'error');
+    }
   };
 
   const getTimeElapsed = (createdAt: string) => {

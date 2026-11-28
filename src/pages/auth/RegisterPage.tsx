@@ -27,7 +27,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   onNavigateTerms,
   onNavigatePrivacy,
 }) => {
-  const { register } = useAuth();
+  const { register, isSupabaseReady, authError } = useAuth();
   const { showToast } = useToast();
 
   const [restaurantName, setRestaurantName] = useState('');
@@ -68,7 +68,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
 
     setIsSubmitting(true);
     try {
-      await register({
+      const res = await register({
         restaurantName: restaurantName.trim(),
         ownerName: ownerName.trim(),
         email: email.trim(),
@@ -79,7 +79,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
         gstNumber: gstNumber.trim() || undefined,
         fssaiNumber: fssaiNumber.trim() || undefined,
       });
-      showToast('Restaurant workspace created successfully!', 'success');
+      if (res.requiresEmailConfirmation) {
+        showToast('Account created! Please check your email to confirm your address, then sign in.', 'info');
+        onNavigateLogin();
+      } else {
+        showToast('Restaurant workspace created successfully!', 'success');
+      }
     } catch (err: any) {
       showToast(err.message || 'Registration failed', 'error');
     } finally {
@@ -106,6 +111,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-xl">
+        {(!isSupabaseReady || authError) && (
+          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-[#D94A43] font-medium">
+            {authError || 'Supabase environment variables are missing. Configure .env before registering.'}
+          </div>
+        )}
         <div className="bg-white py-8 px-6 shadow-sm border border-[#E7EBE8] rounded-2xl sm:px-10">
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Restaurant Name & Type */}

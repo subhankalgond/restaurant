@@ -75,7 +75,7 @@ export const TablesPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveTable = (e: React.FormEvent) => {
+  const handleSaveTable = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tableForm.tableNumber.trim()) return;
 
@@ -87,16 +87,24 @@ export const TablesPage: React.FC = () => {
       status: tableForm.status
     };
 
-    backend.saveTable(caller, toSave);
-    setIsModalOpen(false);
-    showToast(editingTable ? 'Table updated' : 'New table added', 'success');
+    try {
+      await backend.saveTable(caller, toSave);
+      setIsModalOpen(false);
+      showToast(editingTable ? 'Table updated' : 'New table added', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save table', 'error');
+    }
   };
 
-  const handleDeleteTable = (id: string, num: string) => {
+  const handleDeleteTable = async (id: string, num: string) => {
     if (window.confirm(`Delete Table "${num}"?`)) {
-      backend.deleteTable(caller, restId, id);
-      showToast(`Table ${num} deleted`, 'info');
-      if (selectedTable?.id === id) setSelectedTable(null);
+      try {
+        await backend.deleteTable(caller, restId, id);
+        showToast(`Table ${num} deleted`, 'info');
+        if (selectedTable?.id === id) setSelectedTable(null);
+      } catch (err: any) {
+        showToast(err.message || 'Failed to delete table', 'error');
+      }
     }
   };
 
@@ -210,11 +218,19 @@ export const TablesPage: React.FC = () => {
                 {(['available', 'occupied', 'reserved', 'billing'] as const).map(st => (
                   <button
                     key={st}
-                    onClick={() => {
+                    onClick={async () => {
+                      if (selectedTable.currentOrderId && st === 'available') {
+                        showToast('Complete or cancel the active order before marking table available.', 'warning');
+                        return;
+                      }
                       const updated: RestaurantTable = { ...selectedTable, status: st };
-                      backend.saveTable(caller, updated);
-                      setSelectedTable(updated);
-                      showToast(`Table ${selectedTable.tableNumber} status set to ${st}`);
+                      try {
+                        await backend.saveTable(caller, updated);
+                        setSelectedTable(updated);
+                        showToast(`Table ${selectedTable.tableNumber} status set to ${st}`);
+                      } catch (err: any) {
+                        showToast(err.message || 'Failed to update table status', 'error');
+                      }
                     }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize border transition-colors ${
                       selectedTable.status === st

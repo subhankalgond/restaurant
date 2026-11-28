@@ -37,7 +37,10 @@ export const StaffPage: React.FC = () => {
   };
 
   useEffect(() => {
-    loadData();
+    if (!restId) return;
+    backend.fetchStaff(caller, restId).catch((err: any) => {
+      showToast(err.message || 'Failed to load staff', 'error');
+    });
     return backend.subscribe(loadData);
   }, [restId]);
 
@@ -62,9 +65,9 @@ export const StaffPage: React.FC = () => {
     }
   };
 
-  const handleToggleStatus = (staff: User) => {
+  const handleToggleStatus = async (staff: User) => {
     try {
-      backend.toggleStaffStatus(caller, restId, staff.id);
+      await backend.toggleStaffStatus(caller, restId, staff.id);
       showToast(`${staff.name} status updated`, 'info');
     } catch (err: any) {
       showToast(err.message, 'error');
@@ -141,11 +144,10 @@ export const StaffPage: React.FC = () => {
                     </span>
                   </td>
                   <td className="py-3 px-3.5 text-center">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${
-                      member.isActive 
-                        ? 'bg-[#F0F8F3] text-[#078F36] border-[#D8EFDF]' 
-                        : 'bg-red-50 text-[#D94A43] border-red-200'
-                    }`}>
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${member.isActive
+                      ? 'bg-[#F0F8F3] text-[#078F36] border-[#D8EFDF]'
+                      : 'bg-red-50 text-[#D94A43] border-red-200'
+                      }`}>
                       {member.isActive ? 'Active' : 'Deactivated'}
                     </span>
                   </td>
@@ -153,11 +155,10 @@ export const StaffPage: React.FC = () => {
                     {member.role !== 'owner' && (
                       <button
                         onClick={() => handleToggleStatus(member)}
-                        className={`px-3 py-1 rounded-lg text-[11px] font-bold uppercase border transition-colors ${
-                          member.isActive
-                            ? 'text-[#D94A43] border-red-200 hover:bg-red-50'
-                            : 'text-[#078F36] border-[#D8EFDF] hover:bg-[#F0F8F3]'
-                        }`}
+                        className={`px-3 py-1 rounded-lg text-[11px] font-bold uppercase border transition-colors ${member.isActive
+                          ? 'text-[#D94A43] border-red-200 hover:bg-red-50'
+                          : 'text-[#078F36] border-[#D8EFDF] hover:bg-[#F0F8F3]'
+                          }`}
                       >
                         {member.isActive ? 'Deactivate' : 'Activate'}
                       </button>
